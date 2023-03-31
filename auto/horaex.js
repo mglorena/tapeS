@@ -144,7 +144,7 @@ function GridPanel(store) {
       listeners: {
         select: function (combo, record, idx) {
           mes = combo.value;
-          console.log("Por mes");
+          //console.log("Por mes");
           x_LoadGridOnly(mes, anio, personaId, depId, LoadGridOnly_callback);
         },
       },
@@ -165,7 +165,7 @@ function GridPanel(store) {
       listeners: {
         select: function (combo, record, idx) {
           anio = combo.value;
-          console.log("Por anio");
+         // console.log("Por anio");
           x_LoadGridOnly(mes, anio, personaId, depId, LoadGridOnly_callback);
         },
       },
@@ -416,112 +416,192 @@ function LoadHoraEx_callback(response) {
     SendJsError(e, "LoadHoraEx_callback - horaex.js", response);
   }
 }
+function GridPopin(store)
+{
+  var rowEditing = Ext.create("Ext.grid.plugin.RowEditing", {
+    clicksToMoveEditor: 1,
+    autoCancel: false,
+  });
 
+  var grid = Ext.create("Ext.grid.Panel", {
+    store: store,
+    id: "gridDesc",
+    columns: [
+      {
+        header: "Entrada",
+        dataIndex: "entrada",
+        flex: 1,
+        with:'50%',
+        editor: {
+          allowBlank: false,
+        },
+      },
+      {
+        header: "Salida",
+        dataIndex: "salida",
+        with:'50%',
+        editor: {
+          allowBlank: false,
+        },
+      },
+    ],
+    height: 200,
+    title: "Interrupciones",
+   // frame: true,
+    tbar: [
+      {
+        text: "Agregar",
+        iconCls: "icon-add",
+        handler: function () {
+          rowEditing.cancelEdit();
+          var r = Ext.create("Interrupciones", {
+            entrada: "13:30:00",
+            salida: "14:30:00",
+          });
+          store.insert(0, r);
+          rowEditing.startEdit(0, 0);
+        },
+      },
+      {
+        itemId: "removeDescanso",
+        text: "Borrar",
+        iconCls: "icon-remove",
+        handler: function () {
+          var sm = grid.getSelectionModel();
+          rowEditing.cancelEdit();
+          store.remove(sm.getSelection());
+          if (store.getCount() > 0) {
+            sm.select(0);
+          }
+        },
+        disabled: true,
+      },
+    ],
+    plugins: [rowEditing],
+    listeners: {
+     selectionchange: function (view, records) {
+        grid.down("#removeDescanso").setDisabled(!records.length);
+      },
+    },
+  });
+  return grid;
+}
+function LoadCmbZona(record,required)
+{
+   var zonas = [
+    ["1", "Hábil"],
+    ["2", "Inhábil"],
+  ];
+  var zona = record ? record.data["Zona"] : null;
+  var stzonas = new Ext.data.ArrayStore({
+    fields: ["Id", "Zona"],
+    data: zonas,
+   });
+  var cmbZona = Ext.create("Ext.form.field.ComboBox", {
+    xtype: "combo",
+    fieldLabel: "Zona",
+    id: "Zona",
+    name: "Zona",
+    store: stzonas,
+    afterLabelTextTpl: required,
+    valueField: "Id",
+    displayField: "Zona",
+    editable: false,
+    allowBlank: false,
+    width: 230,
+    value: zona
+  });
+  return cmbZona;
+}
+function LoadCmbPersonas(record,required)
+{
+  var stpersonas = new Ext.data.ArrayStore({
+    fields: ["PersonaId", "Personas"],
+    data: ch,
+  });
+  var cmbPersonas = Ext.create("Ext.form.field.ComboBox", {
+      xtype: "combo",
+      fieldLabel: "Persona",
+      id: "PersonaId",
+      name: "PersonaId",
+      store: stpersonas,
+      afterLabelTextTpl: required,
+      valueField: "PersonaId",
+      displayField: "Personas",
+      editable: false,
+      allowBlank: false,
+      value: record ? record.data["PersonaId"] : null,
+      width: 400,
+    
+  });
+  return cmbPersonas;
+}
+function LoadCmbDependencias(record,required)
+{
+  var stdepend = new Ext.data.ArrayStore({
+    fields: ["DependenciaId", "Nombre"],
+    data: deps,
+  });
+  var cmbDepen = Ext.create("Ext.form.field.ComboBox", {
+    
+      xtype: "combo",
+      fieldLabel: "Dependencia",
+      id: "DependenciaId",
+      name: "DependenciaId",
+      store: stdepend,
+      afterLabelTextTpl: required,
+      valueField: "DependenciaId",
+      displayField: "Nombre",
+      editable: false,
+      allowBlank: false,
+      width: '50%',
+      value: record ? record.data["DependenciaId"] : null,
+  });
+  return cmbDepen;
+}
+function LoadCmbVehiculos(record,required)
+{
+  var stvehiculos = new Ext.data.ArrayStore({
+    fields: ["VehiculoId", "Modelo"],
+    data: ve,
+  });
+  var cmbVehiculos = Ext.create("Ext.form.field.ComboBox", {
+      xtype: "combo",
+      fieldLabel: "Vehiculo",
+      id: "VehiculoId",
+      name: "VehiculoId",
+      store: stvehiculos,
+      //afterLabelTextTpl: required,
+      valueField: "VehiculoId",
+      displayField: "Modelo",
+      width: 400,
+      editable: false,
+      //allowBlank: false,
+      value: record ? record.data["VehiculoId"] : null,
+    
+  });
+  return cmbVehiculos;
+}
 function FormField(record, desc) {
   try {
-    var zonas = [
-      ["1", "Hábil"],
-      ["2", "Inhábil"],
-    ];
-    var zona = record ? record.data["Zona"] : null;
-    var stzonas = new Ext.data.ArrayStore({
-      fields: ["Id", "Zona"],
-      data: zonas,
-    });
-    var stvehiculos = new Ext.data.ArrayStore({
-      fields: ["VehiculoId", "Modelo"],
-      data: ve,
-    });
-    var stpersonas = new Ext.data.ArrayStore({
-      fields: ["PersonaId", "Personas"],
-      data: ch,
-    });
-    var stdepend = new Ext.data.ArrayStore({
-      fields: ["DependenciaId", "Nombre"],
-      data: deps,
-    });
+  
     Ext.define("Interrupciones", {
       extend: "Ext.data.Model",
-      fields: [
-        {
-          name: "entrada",
-          type: "time",
-        },
-        {
-          name: "salida",
-          type: "time",
-        },
-      ],
+      fields: ['entrada', 'salida']
     });
-    var store = Ext.create("Ext.data.ArrayStore", {
+    
+    var store = new Ext.data.ArrayStore({
       model: "Interrupciones",
-      data: desc,
+      data: desc
     });
-    var rowEditing = Ext.create("Ext.grid.plugin.RowEditing", {
-      clicksToMoveEditor: 1,
-      autoCancel: false,
-    });
-    var grid = Ext.create("Ext.grid.Panel", {
-      store: store,
-      id: "gridDesc",
-      columns: [
-        {
-          header: "Entrada",
-          dataIndex: "entrada",
-          flex: 1,
-          editor: {
-            allowBlank: false,
-          },
-        },
-        {
-          header: "Salida",
-          dataIndex: "salida",
-          editor: {
-            allowBlank: false,
-          },
-        },
-      ],
-      height: 150,
-      title: "Interrupciones",
-      frame: true,
-      tbar: [
-        {
-          text: "Agregar",
-          iconCls: "icon-add",
-          handler: function () {
-            rowEditing.cancelEdit();
-            var r = Ext.create("Interrupciones", {
-              entrada: "13:30:00",
-              salida: "14:30:00",
-            });
-            store.insert(0, r);
-            rowEditing.startEdit(0, 0);
-          },
-        },
-        {
-          itemId: "removeDescanso",
-          text: "Borrar",
-          iconCls: "icon-remove",
-          handler: function () {
-            var sm = grid.getSelectionModel();
-            rowEditing.cancelEdit();
-            store.remove(sm.getSelection());
-            if (store.getCount() > 0) {
-              sm.select(0);
-            }
-          },
-          disabled: true,
-        },
-      ],
-      plugins: [rowEditing],
-      listeners: {
-       /* selectionchange: function (view, records) {
-          grid.down("#removeDescanso").setDisabled(!records.length);
-        },*/
-      },
-    });
-    var required =
-      '<span style="color:red;font-weight:bold" data-qtip="Requerido">*</span>';
+
+    var required ='<span style="color:red;font-weight:bold" data-qtip="Requerido">*</span>';   
+    var grid = GridPopin(store);
+    var cmbZona=LoadCmbZona(record,required);
+    var cmbPersonas =  LoadCmbPersonas(record,required);
+    var cmbDepen = LoadCmbDependencias(record,required);
+    var cmbVehiculos = LoadCmbVehiculos(record,required);
+
     var formFields = [
       {
         xtype: "displayfield",
@@ -531,34 +611,7 @@ function FormField(record, desc) {
         value: record ? record.data["HoraExId"] : null,
         editable: false,
       },
-      {
-        xtype: "combo",
-        fieldLabel: "Persona",
-        id: "PersonaId",
-        name: "PersonaId",
-        store: stpersonas,
-        afterLabelTextTpl: required,
-        valueField: "PersonaId",
-        displayField: "Personas",
-        editable: false,
-        allowBlank: false,
-        value: record ? record.data["PersonaId"] : null,
-        width: 350,
-      },
-      {
-        xtype: "combo",
-        fieldLabel: "Dependencia",
-        id: "DependenciaId",
-        name: "DependenciaId",
-        store: stdepend,
-        afterLabelTextTpl: required,
-        valueField: "DependenciaId",
-        displayField: "Nombre",
-        editable: false,
-        allowBlank: false,
-        width: 250,
-        value: record ? record.data["DependenciaId"] : null,
-      },
+       cmbPersonas,cmbDepen,
       {
         fieldLabel: "Fecha",
         name: "Fecha",
@@ -575,69 +628,48 @@ function FormField(record, desc) {
           },
         },
       },
+      cmbZona,
       {
-        xtype: "combo",
-        fieldLabel: "Zona",
-        id: "Zona",
-        name: "Zona",
-        store: stzonas,
-        afterLabelTextTpl: required,
-        valueField: "Id",
-        displayField: "Zona",
-        editable: false,
-        allowBlank: false,
-        width: 170,
-        value: zona,
-      },
-      {
-        fieldLabel: "Concepto/Destino",
+        fieldLabel: "Concepto",
         name: "Concepto",
         id: "txtConcepto",
         afterLabelTextTpl: required,
         value: record ? record.data["Concepto"] : null,
         allowBlank: false,
-        width: 350,
-      },
-      {
-        xtype: "combo",
-        fieldLabel: "Vehiculo",
-        id: "VehiculoId",
-        name: "VehiculoId",
-        store: stvehiculos,
-        afterLabelTextTpl: required,
-        valueField: "VehiculoId",
-        displayField: "Modelo",
-        width: 350,
-        editable: false,
-        allowBlank: false,
-        value: record ? record.data["VehiculoId"] : null,
-      },
+        width: '50%',
+      },cmbVehiculos,
       {
         fieldLabel: "Responsable",
         name: "Responsable",
         id: "txtResponsable",
-        width: 350,
+        width: 400,
         afterLabelTextTpl: required,
         value: record ? record.data["Responsable"] : null,
         allowBlank: true,
       },
       {
         xtype: "fieldset",
-        padding: 0,
-        margin: 3,
-        collapsible: false,
+        padding: 5,
+       // margin: 3,
+        //collapsible: false,
         layout: {
           type: "table",
         },
         defaults: {
-          border: 0,
+           border: 'none',
           cellCls: "verticalAlignTop",
+          height: 100
         },
         items: [
           {
             xtype: "fieldset",
             title: "Horario Cumplido",
             collapsible: false,
+            marginTop: 5,
+            defaults: {
+             border: 'none',
+             cellCls: "verticalAlignTop",
+           },
             layout: {
               type: "table",
               columns: 2,
@@ -646,6 +678,10 @@ function FormField(record, desc) {
               {
                 xtype: "fieldset",
                 collapsible: false,
+                defaults: {
+                  border: 'none',
+                  cellCls: "verticalAlignTop",
+                },
                 layout: {
                   type: "table",
                   columns: 2,
@@ -677,6 +713,10 @@ function FormField(record, desc) {
             xtype: "fieldset",
             title: "Horario Tarjeta",
             collapsible: false,
+            defaults: {
+              border: 'none',
+             cellCls: "verticalAlignTop",
+           },
             layout: {
               type: "table",
               columns: 2,
@@ -684,8 +724,12 @@ function FormField(record, desc) {
             items: [
               {
                 xtype: "fieldset",
-                title: "Mañana",
+                //title: "Mañana",
                 collapsible: false,
+                defaults: {
+                  border: 'none',
+                  cellCls: "verticalAlignTop",
+                },
                 layout: {
                   type: "table",
                   columns: 2,
@@ -715,7 +759,7 @@ function FormField(record, desc) {
               },
               {
                 xtype: "fieldset",
-                title: "Tarde",
+                //title: "Tarde",
                 collapsible: false,
                 layout: {
                   type: "table",
@@ -750,6 +794,10 @@ function FormField(record, desc) {
       {
         xtype: "fieldset",
         title: "Horas Extraordinarias",
+        height:120,
+        defaults: {
+           cellCls: "verticalAlignTop",
+        },
         layout: {
           type: "table",
           columns: 3,
@@ -814,20 +862,20 @@ function PopinHoraEx(action, record) {
     var win = Ext.create("Ext.window.Window", {
       title: title,
       bodyStyle: "padding: 15px;border:none;",
-      width: 700,
+      width: '75%',
       closable: true,
       //layout: "fit",
       //modal: true,
       items: {
         xtype: "form",
         //frame: true,
-       // defaultType: "textfield",
+       defaultType: "textfield",
         //overflowY: "auto",
-        bodyStyle: "padding: 15px;border:none;",
-        //url: "file-upload.php",
-        //fileUpload: true,
-        //items: formFields,
-        //method: "post", 
+        bodyStyle: "border:none;",
+        url: "file-upload.php",
+        fileUpload: true,
+        items: formFields,
+        method: "post", 
         buttons: [
           {
             text: btnText,
@@ -854,20 +902,7 @@ function PopinHoraEx(action, record) {
             },
           },
         ],
-        listeners: {
-          /*afterrender: function () {
-                        var that = this;
-                        setTimeout(function () {
-                            that.items.first().focus();
-                        }, 750);
-                        this.keyNav = Ext.create('Ext.util.KeyNav', this.el, {
-                            enter: function () {
-                                Ext.getCmp("new-record-add-button").handler();
-                            },
-                            scope: this
-                        });
-                    }*/
-        },
+        
       },
     });
     return win;
@@ -986,7 +1021,7 @@ function GetAllDataGrid(grid) {
 function SaveEstado(data) {
   var horaex = JSON.stringify(data);
   //console.log("Lo necesario para grabar");
-  console.log(horaex);
+  //console.log(horaex);
   x_SaveEstado(horaex, SaveEstado_callback);
 }
 function SaveEstado_callback(response) {
@@ -1084,7 +1119,7 @@ function DeleteHoraEx(record, grid) {
 function DeleteHoraEx_callback(response) {
   if (response) {
     humane.success("Se ha eliminado el vehiculo correctamente.");
-    x_LoadHoraEx(mes, anio, personaId, depId, LoadHoraEx_callback);
+    x_LoadGridOnly(mes, anio, personaId, depId, LoadGridOnly_callback);
   } else {
     humane.error("Hubo un error al eliminar el vehiculo.");
     SendJsError(
@@ -1138,7 +1173,7 @@ function CalcularHoraEx(form) {
   var rec;
   try {
     rec = form.getValues();
-    console.log(rec);
+    //console.log(rec);
     var e, s, he, hs, ms, me, zona, te, ts, a, am, b, bm, hex;
     e = new Date();
     de = rec["Entrada"].split(":");
@@ -1159,7 +1194,7 @@ function CalcularHoraEx(form) {
          if (s != 'Invalid Date')
          s = Ext.util.Format.date(s, 'H:i');
          }*/
-    console.log("Ingreso :" + e + "-Egreso:" + s);
+    //console.log("Ingreso :" + e + "-Egreso:" + s);
     he = e.getHours();
     me = e.getMinutes();
     hs = s.getHours();
@@ -1192,14 +1227,14 @@ function CalcularHoraEx(form) {
          vth = (hs - he);*/
 
     var vth = hs - he;
-    console.log("Entrada :" + he + "----" + "-Salida:" + hs);
+    //console.log("Entrada :" + he + "----" + "-Salida:" + hs);
     var vtm = ms - me;
-    console.log(vth);
+    //console.log(vth);
     if (vth < 0) {
       alert("Error en la carga de datos");
       return;
     }
-    console.log("Horas y minutos:" + vth + "---:" + vtm);
+    //console.log("Horas y minutos:" + vth + "---:" + vtm);
     var vt = new Date();
     vt.setHours(vth, vtm, 0, 0);
     if (rec["Entrada"] && rec["Salida"] && zona === "1") {
@@ -1211,19 +1246,19 @@ function CalcularHoraEx(form) {
       bm = parseInt(b[1]);
       b = parseInt(b[0]);
       if (t[2].getHours() >= 7) bj = true;
-      console.log(
-        " Hora de Trabajo " + t + " Horas en total :" + t[2].getHours()
-      );
-      console.log(
-        "'a' Lab. Entrada :" +
-          a +
-          ", 'b' Lab. Salida:" +
-          b +
-          ",'he' Salida:" +
-          he +
-          ",'hs' LLegada" +
-          hs
-      );
+      //console.log(
+     //   " Hora de Trabajo " + t + " Horas en total :" + t[2].getHours()
+     // );
+     // console.log(
+      //  "'a' Lab. Entrada :" +
+      //    a +
+     //     ", 'b' Lab. Salida:" +
+     //     b +
+     //     ",'he' Salida:" +
+    //      he +
+    //      ",'hs' LLegada" +
+    //      hs
+    //  );
       var ht = t[2];
       hv = new Date(
         e.getFullYear(),
@@ -1232,7 +1267,7 @@ function CalcularHoraEx(form) {
         hs - he,
         ms - me
       );
-      console.log("Cant. horas viaje :" + hv);
+      //console.log("Cant. horas viaje :" + hv);
       if (a <= he && he < b && b < hs) {
         hex = new Date(
           e.getFullYear(),
@@ -1316,7 +1351,7 @@ function CalcularHoraEx(form) {
     }
     var grid = Ext.getCmp("gridDesc");
     var descs = grid.store.data.items;
-    console.log("Cantidad de horas extras:" + hex);
+    //console.log("Cantidad de horas extras:" + hex);
     for (var i = 0; i < descs.length; i++) {
       var de = descs[i].data["entrada"].split(":")[0];
       var dem = descs[i].data["entrada"].split(":")[1];
@@ -1324,13 +1359,13 @@ function CalcularHoraEx(form) {
       var dsm = descs[i].data["salida"].split(":")[1];
       var dt = new Date();
       dt.setHours(ds - de, dsm - dem);
-      console.log("Horas extras :" + hex.getHours() + ":" + hex.getMinutes());
-      console.log(
-        "Horas descanso a restar :" + dt.getHours() + ":" + dt.getMinutes()
-      );
+      //console.log("Horas extras :" + hex.getHours() + ":" + hex.getMinutes());
+     // console.log(
+     //   "Horas descanso a restar :" + dt.getHours() + ":" + dt.getMinutes()
+     // );
       hexd = hex.getHours() - dt.getHours();
       mexd = hex.getMinutes() - dt.getMinutes();
-      console.log("Diferencias: " + hexd + ", minutos:" + mexd);
+     // console.log("Diferencias: " + hexd + ", minutos:" + mexd);
 
       if (hexd <= 0 && mexd <= 30) {
         if (mexd === 30)
@@ -1372,7 +1407,7 @@ function CalcularHoraEx(form) {
     /* totalextra = totalextra.toFixed(2);
          //totalextra = new Date(e.getFullYear(), e.getMonth() - 1, e.getDate(), totalextra.split(".")[0], totalextra.split(".")[1]);
          Ext.getCmp('TotalHoras').setValue(totalextra);*/
-    console.log("Jornada completa?" + bj);
+   // console.log("Jornada completa?" + bj);
   } catch (e) {
     SendJsError(e, "CalcularHoraEx - horaex.js", rec);
   }
@@ -1406,8 +1441,8 @@ function SaveHoraEx(form, action) {
     rec["Hora50"] = rec["Hora50"] == "" ? "00:00" : rec["Hora50"];
     rec["Jornada"] = bj ? 1 : 0;
     var horaex = JSON.stringify(rec);
-    //console.log("tesssssssssssssssssssssssssssssssssssssssssss");
-    //console.log(horaex);
+   // console.log("tesssssssssssssssssssssssssssssssssssssssssss");
+   // console.log(horaex);
     x_SaveHoraEx(horaex, SaveHoraEx_callback);
   } catch (e) {
     SendJsError(e, "SaveHoraEx - horaex.js", rec);
@@ -1421,11 +1456,7 @@ function SaveHoraEx_callback(response) {
       x_LoadGridOnly(mes, anio, personaId, depId, LoadGridOnly_callback);
     } else {
       humane.error("Hubo un error al guardar la hora.");
-      SendJsError(
-        new Error("Error SaveHoraEx-horaex.js"),
-        "horaex.js",
-        response
-      );
+      SendJsError(new Error("Error SaveHoraEx-horaex.js"),"horaex.js", response);
     }
   } catch (e) {
     SendJsError(e, "SaveHoraEx_callback - horaex.js", response);

@@ -109,7 +109,7 @@ function parseString(args) {
 
 function SendJsError(obj, location, data) {
 
-   
+    alert("llega");
     var sExtraData = new String();
     try {
        /* console.log("Error in javascript - function SendJsError");
@@ -207,6 +207,7 @@ function SendJsError(obj, location, data) {
         }
         sExtraData += '<br><b>Location:</b> ' + document.location.href;
         sExtraData += '<br><b>Cookies:</b> ' + document.cookie;
+        console.log(parseString(sMessage), parseString(location), parseString(sExtraData));
         x_SendJsError(parseString(sMessage), parseString(location), parseString(sExtraData),SendJsError_callback);
         //console.log("SendJsError sending mail");
 

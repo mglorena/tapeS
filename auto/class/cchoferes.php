@@ -5,31 +5,34 @@
  * To change the template for this generated file go to
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
-require_once ('/var/www/html/tape/class/cerrors.php');
-require_once ('/var/www/html/tape/class/csqlprovider.php');
-require_once ('/var/www/html/tape/class/cdump.php');
+require_once '/var/www/html/tape/class/cerrors.php';
+require_once '/var/www/html/tape/class/csqlprovider.php';
+require_once '/var/www/html/tape/class/cdump.php';
 
-class Chofer {
+class Chofer
+{
 
     // Next comes the variable list as defined above
     // Note the key word 'var' and then a comma-separated list
-            var $ChoferId = 'NULL',
-            $FirstName = '',
-            $LastName = '',
-            $Legajo = 'NULL',
-            $Celular = '',
-            $Licencia1 = 'NULL',
-            $Licencia2 = 'NULL',
-            $Licencia3 = 'NULL',
-            $Active = 'NULL';
+    public $ChoferId = 'NULL',
+    $FirstName = '',
+    $LastName = '',
+    $Legajo = 'NULL',
+    $Celular = '',
+    $Licencia1 = 'NULL',
+    $Licencia2 = 'NULL',
+    $Licencia3 = 'NULL',
+    $Active = 'NULL';
 
-    public function copy($object) {
+    public function copy($object)
+    {
         foreach (get_object_vars($object) as $key => $value) {
             $this->$key = $value;
         }
     }
 
-    function GetHoraExtra($type, $choferId) {
+    public function GetHoraExtra($type, $choferId)
+    {
         $choferes = array();
         $query = "";
         try {
@@ -37,8 +40,10 @@ class Chofer {
             $db->getInstance();
             $query = "call choferes_horaExtra(" . $type . "," . $choferId . ");";
 
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $choferes = $db->ListObject();
+            }
+
             $db->CloseMysql();
             return $choferes;
         } catch (Exception $ex) {
@@ -48,18 +53,21 @@ class Chofer {
         return null;
     }
 
-    function Search() {
+    public function Search()
+    {
         $choferes = array();
         $query = "";
         try {
             $db = new sqlprovider();
             $db->getInstance();
             $query = "call choferes_search(" . $this->ChoferId . ",'" . $this->FirstName . "','" . $this->LastName . "'," . $this->Legajo . "," . $this->Active . ");";
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $choferes = $db->ListObject();
+            }
+
             $db->CloseMysql();
-           // $e = new Errors();
-           // $e->SendDataMessage("cchoferes.php - Search", $query);  
+            // $e = new Errors();
+            // $e->SendDataMessage("cchoferes.php - Search", $query);
             return $choferes;
         } catch (Exception $ex) {
             $e = new Errors();
@@ -68,7 +76,8 @@ class Chofer {
         return null;
     }
 
-    function Search2() {
+    public function Search2()
+    {
         $choferes = array();
         $query = "";
         try {
@@ -79,8 +88,8 @@ class Chofer {
                 $choferes = $db->ListObject2();
                 $db->CloseMysql();
             }
-           // $e = new Errors();
-           // $e->SendDataMessage("cchoferes.php - Search2", $query);  
+            // $e = new Errors();
+            // $e->SendDataMessage("cchoferes.php - Search2", $query);
             return $choferes;
         } catch (Exception $ex) {
             $e = new Errors();
@@ -89,7 +98,8 @@ class Chofer {
         return null;
     }
 
-    function GetByChoferName() {
+    public function GetByChoferName()
+    {
         $choferes = array();
         $query = "call choferes_getByName";
         try {
@@ -109,7 +119,8 @@ class Chofer {
         return null;
     }
 
-    function GetByChoferId() {
+    public function GetByChoferId()
+    {
         $choferes = array();
         $query = "";
         try {
@@ -128,15 +139,16 @@ class Chofer {
         return null;
     }
 
-    function Save() {
+    public function Save()
+    {
         $query = "";
         try {
             $query = "call choferes_update(" . $this->ChoferId . ",'" . $this->FirstName . "','" . $this->LastName . "','" . $this->Legajo . "','" . $this->Celular . "'," . $this->Active . ");";
             $db = new sqlprovider();
             $db->getInstance();
             $db->setQuery($query);
-            $e = new Errors();
-            $e->SendDataMessage("cchoferes.php - Save", $query);  
+            //$e = new Errors();
+            //$e->SendDataMessage("cchoferes.php - Save", $query);
             if ($db->execute() == "1") {
                 $db->CloseMysql();
                 return true;
@@ -151,12 +163,13 @@ class Chofer {
         return false;
     }
 
-    function Insert() {
+    public function Insert()
+    {
 
         $query = "";
         try {
             $this->Active = 1;
-            $query = "call choferes_insert('" . $this->FirstName . "','" . $this->LastName . "','" . $this->Legajo . "','" . $this->Celular . "',".$this->Active . ");";
+            $query = "call choferes_insert('" . $this->FirstName . "','" . $this->LastName . "','" . $this->Legajo . "','" . $this->Celular . "'," . $this->Active . ");";
             $db = new sqlprovider();
 
             $db->getInstance();
@@ -175,26 +188,27 @@ class Chofer {
         return false;
     }
 
-    function Delete() {
+    public function Delete()
+    {
 
         $query = "";
         try {
-           
-            $query .="call choferes_delete(" . $this->ChoferId . ");";
+
+            $query .= "call choferes_delete(" . $this->ChoferId . ");";
             $db = new sqlprovider();
             $db->getInstance();
             $db->setQuery($query);
             $result = $db->execute();
-           
-            $r =$result->fetch_array(MYSQLI_BOTH)[0]; 
-           
+
+            $r = $result->fetch_array(MYSQLI_BOTH)[0];
+
             if ($r == '1') {
                 $db->CloseMysql();
-           
+
                 return true;
             } else {
                 $db->CloseMysql();
-           
+
                 return false;
             }
         } catch (Exception $ex) {
@@ -204,7 +218,8 @@ class Chofer {
         return false;
     }
 
-    function GetAll() {
+    public function GetAll()
+    {
         $choferes = array();
         $query = "";
         try {
@@ -212,8 +227,10 @@ class Chofer {
             $db->getInstance();
             $query = "call choferes_getAll();";
 
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $choferes = $db->ListArray();
+            }
+
             $db->CloseMysql();
             return $choferes;
         } catch (Exception $ex) {
@@ -223,15 +240,18 @@ class Chofer {
         return null;
     }
 
-    function GetDisponibles($feI, $feF, $reId) {
+    public function GetDisponibles($feI, $feF, $reId)
+    {
         $choferes = array();
         $query = "";
         try {
             $db = new sqlprovider();
             $db->getInstance();
             $query = "call choferes_getDisponibles('" . $feI . "','" . $feF . "'," . $reId . ");";
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $choferes = $db->ListArray();
+            }
+
             $db->CloseMysql();
             return $choferes;
         } catch (Exception $ex) {
@@ -241,19 +261,21 @@ class Chofer {
         return null;
     }
 
-    function GetDropDown($choferesIds) {
+    public function GetDropDown($choferesIds)
+    {
         $choferes = $this->GetAll();
 
         $select = "<select id=\"ddlChoferes\" name=\"ddlchoferes\" >";
-        $select.= "<option value='0'>-------</option>";
+        $select .= "<option value='0'>-------</option>";
         foreach ($choferes as $ch) {
-            $select.= "<option value='" . $ch->ChoferId . "' " . $sel . ">" . $ch->FirstName . "</option>";
+            $select .= "<option value='" . $ch->ChoferId . "' " . $sel . ">" . $ch->FirstName . "</option>";
         }
-        $select.="</select>";
+        $select .= "</select>";
         return $select;
     }
 
-    function GetChoferDispo($choferesIds, $feI, $feF, $reId) {
+    public function GetChoferDispo($choferesIds, $feI, $feF, $reId)
+    {
         $choferes = $this->GetDisponibles($feI, $feF, $reId);
         $chs = explode(",", $choferesIds);
         $select = "<select id=\"ddlChoferes\" multiple=\"multiple\" name=\"nlchoferes\" size=\"5\">";
@@ -263,15 +285,15 @@ class Chofer {
                 if ($ch->ChoferId == $c) {
                     $sel = "selected = \"selected\"";
                     break;
-                }
-                else
+                } else {
                     $sel = "";
+                }
+
             }
-            $select.= "<option value='" . $ch->ChoferId . "' " . $sel . ">" . $ch->FirstName . "</option>";
+            $select .= "<option value='" . $ch->ChoferId . "' " . $sel . ">" . $ch->FirstName . "</option>";
         }
-        $select.="</select>";
+        $select .= "</select>";
         return $select;
     }
 
 }
-?>

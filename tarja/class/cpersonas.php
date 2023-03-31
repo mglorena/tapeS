@@ -6,37 +6,39 @@
  * To change the template for this generated file go to
  * Window - Preferences - PHPeclipse - PHP - Code Templates
  */
-require_once ('/var/www/html/tape/class/cerrors.php');
-require_once ('/var/www/html/tape/class/csqlprovider.php');
-require_once ('/var/www/html/tape/class/cdump.php');
+require_once '/var/www/html/tape/class/cerrors.php';
+require_once '/var/www/html/tape/class/csqlprovider.php';
+require_once '/var/www/html/tape/class/cdump.php';
 
-class Persona {
+class Persona
+{
 
     // Next comes the variable list as defined above
     // Note the key word 'var' and then a comma-separated list
     public $PersonaId = null;
     public $VacacionesDias = null;
-    var
-            $Nombre = '',
-            $Apellido = '', $Domicilio = '', $ArticuloId = '', $Observaciones ='', $FechaIngreso = '0000-00-00 00:00:00',
-            $CargoDesc = '', $Categoria = '', $CantHoras = '', $Desde = '', $Hasta = null, $DNI = null, $TipoDNI='DNI',
-            $Compensatorio = 0, $CP = 4400, $LicAnt = 0, $LicA = 0, $Total = 0, $Telefono = '',
-            $Compensatorios = 0, $FechaNac = '0000-00-00 00:00:00',$Email ='',
-            $Legajo = 0,$Activo=0,$CUIL=0,
-            $Active = 0;
+    public $Nombre = '',
+    $Apellido = '', $Domicilio = '', $ArticuloId = '', $Observaciones = '', $FechaIngreso = '0000-00-00 00:00:00',
+    $CargoDesc = '', $Categoria = '', $CantHoras = '', $Desde = '', $Hasta = null, $DNI = null, $TipoDNI = 'DNI',
+    $Compensatorio = 0, $CP = 4400, $LicAnt = 0, $LicA = 0, $Total = 0, $Telefono = '',
+    $Compensatorios = 0, $FechaNac = '0000-00-00 00:00:00', $Email = '',
+    $Legajo = 0, $Activo = 0, $CUIL = 0,
+    $Active = 0;
 
-    public function copy(object $object) {
+    public function copy(object $object)
+    {
         foreach (get_object_vars($object) as $key => $value) {
             $this->$key = utf8_decode($value);
         }
     }
 
-    function AddNew() {
+    public function AddNew()
+    {
         $query = "";
         try {
 
             $query = "call personas_insert(
-               
+
                 '" . $this->Apellido . "',
                 '" . $this->Nombre . "',
                 '" . $this->Legajo . "',
@@ -52,15 +54,15 @@ class Persona {
                 '" . $this->FechaIngreso . "',
                 '" . $this->DNI . "')";
 
-                $e1 = new Errors();
-                $e1->SendDataMessage("cpersonas.php - AddNew", $query);        
+            // $e1 = new Errors();
+            // $e1->SendDataMessage("cpersonas.php - AddNew", $query);
             $db = new sqlprovider();
-           $db->getInstance();
+            $db->getInstance();
             $db->setQuery($query);
             if ($db->execute() == "1") {
                 $e = new Errors();
-            $e->SendErrorMessage(new Exception("no inserta "), "cpersonas.php - AddNew", $query);
-           
+                $e->SendErrorMessage(new Exception("no inserta "), "cpersonas.php - AddNew", $query);
+
                 $db->CloseMysql();
                 return true;
             } else {
@@ -74,9 +76,10 @@ class Persona {
         return false;
     }
 
-    function Compesatorios() {
+    public function Compesatorios()
+    {
         foreach (
-        $this->Compensatorios as $value) {
+            $this->Compensatorios as $value) {
             $del = true;
             if ($value[0] != 0) {
                 $del = $this->DeleteCompensatorios($value[0]);
@@ -96,8 +99,8 @@ class Persona {
         return true;
     }
 
-    function InsertCompensatorio($fecha
-    , $entrada, $salida, $isHabil) {
+    public function InsertCompensatorio($fecha
+        , $entrada, $salida, $isHabil) {
         $query = "";
         try {
             $query = "    call personas_insCompe('" . $this->PersonaId . "', '" . $fecha . "', '" . $entrada . "', '" . $salida . "', '" . $isHabil . "' );
@@ -119,10 +122,8 @@ class Persona {
         return false;
     }
 
-    function GuardarTotalCompensatorio() {
-
-
-
+    public function GuardarTotalCompensatorio()
+    {
 
         $query = "";
         try {
@@ -146,13 +147,13 @@ class Persona {
         return false;
     }
 
-    function DeleteCompensatorios(
-    $cId) {
+    public function DeleteCompensatorios(
+        $cId) {
 
         $query = "";
         try {
 
-            $query .="call personas_delCompe('" . $this->PersonaId . "', " . $cId . ");
+            $query .= "call personas_delCompe('" . $this->PersonaId . "', " . $cId . ");
                     ";
             $db = new sqlprovider();
             $db->getInstance();
@@ -174,18 +175,20 @@ class Persona {
         return false;
     }
 
-    function GetAllPersons()
+    public function GetAllPersons()
     {
-        
-         $personas = array();
+
+        $personas = array();
         $query = "";
         try {
             $db = new sqlprovider();
             $db->getInstance();
             $query = "call personas_getAllPersons();";
 
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListArray();
+            }
+
             $db->CloseMysql();
 
             return $personas;
@@ -195,20 +198,21 @@ class Persona {
         }
         return null;
     }
-    function Guardar() {
+    public function Guardar()
+    {
         $query = "";
         try {
 
-            $query = "call personas_update(" . $this->PersonaId . ", '" . $this->Apellido . "', '" . $this->Nombre . "', '" . $this->Legajo . "', '" . $this->CargoDesc . "', " . $this->Categoria . ", '" . $this->Domicilio . "', '" . $this->Telefono . "', '" . $this->FechaNac . "', '" . $this->TipoDNI ." ','" . $this->DNI . "', " . $this->Activo . " , '" . $this->FechaIngreso . "');
+            $query = "call personas_update(" . $this->PersonaId . ", '" . $this->Apellido . "', '" . $this->Nombre . "', '" . $this->Legajo . "', '" . $this->CargoDesc . "', " . $this->Categoria . ", '" . $this->Domicilio . "', '" . $this->Telefono . "', '" . $this->FechaNac . "', '" . $this->TipoDNI . " ','" . $this->DNI . "', " . $this->Activo . " , '" . $this->FechaIngreso . "');
                     ";
 
-          $e = new Errors();
-          $e->SendDataMessage("cpersonas.php - Guardar", $query);        
+            // $e = new Errors();
+            // $e->SendDataMessage("cpersonas.php - Guardar", $query);
 
-          $db = new sqlprovider();
-          $db->getInstance();
-          $db->setQuery($query);
-        
+            $db = new sqlprovider();
+            $db->getInstance();
+            $db->setQuery($query);
+
             if ($db->execute() == "1") {
                 $db->CloseMysql();
                 return true;
@@ -216,7 +220,7 @@ class Persona {
                 $db->CloseMysql();
                 return false;
             }
-            
+
         } catch (Exception $ex) {
             $e = new Errors();
             $e->SendErrorMessage($ex, "cpersonas.php - Guardar", $query);
@@ -224,19 +228,17 @@ class Persona {
         return false;
     }
 
-    function GuardarDesc() {
-
-
-
+    public function GuardarDesc()
+    {
 
         $query = "";
         try {
 
-            $o =$this->Observaciones;
-            $query = "call personas_updateObs(" . $this->PersonaId . ",\"".$o."\"); ";
+            $o = $this->Observaciones;
+            $query = "call personas_updateObs(" . $this->PersonaId . ",\"" . $o . "\"); ";
             $db = new sqlprovider();
             $db->getInstance();
-                $db->setQuery($query);
+            $db->setQuery($query);
             if ($db->execute() == "1") {
                 $db->CloseMysql();
                 return true;
@@ -251,8 +253,8 @@ class Persona {
         return false;
     }
 
-    function PrintMensual(
-    $mes, $anio) {
+    public function PrintMensual(
+        $mes, $anio) {
         $personas = array();
         $query = "";
         try {
@@ -273,7 +275,8 @@ class Persona {
         return null;
     }
 
-    function GetLicencias($anio) {
+    public function GetLicencias($anio)
+    {
         $personas = array();
         $query = "";
         try {
@@ -294,7 +297,8 @@ class Persona {
         return null;
     }
 
-    function PrintAnual($anio) {
+    public function PrintAnual($anio)
+    {
         $personas = array();
         $query = "";
         try {
@@ -302,9 +306,11 @@ class Persona {
             $db->getInstance();
             $query = "call personas_printAnual(" . $anio . ");
                     ";
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListObject(
                 );
+            }
+
             $db->CloseMysql();
 
             return $personas;
@@ -315,7 +321,8 @@ class Persona {
         return null;
     }
 
-    function PrintAnualById($anio, $personaId) {
+    public function PrintAnualById($anio, $personaId)
+    {
         $personas = array()
         ;
         $query = "";
@@ -324,8 +331,10 @@ class Persona {
             $db->getInstance();
             $query = "call personas_printAnualById(" . $anio . ", " . $personaId . ");
                     ";
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListObject();
+            }
+
             $db->CloseMysql();
 
             return $personas;
@@ -336,7 +345,8 @@ class Persona {
         return null;
     }
 
-    function ActualizarLic($anio) {
+    public function ActualizarLic($anio)
+    {
         $personas = array();
 
         $query = "";
@@ -345,10 +355,11 @@ class Persona {
             $db->getInstance();
             $query = "call personas_updateLic(" . $anio . ");
                     ";
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListObject();
-            $db->CloseMysql();
+            }
 
+            $db->CloseMysql();
 
             return $personas;
         } catch (Exception $ex) {
@@ -358,7 +369,8 @@ class Persona {
         return null;
     }
 
-    function SaveLicencias($licencias) {
+    public function SaveLicencias($licencias)
+    {
         $query = "";
 
         $db = new sqlprovider();
@@ -371,7 +383,7 @@ class Persona {
 
                 $db->setQuery($query);
                 if ($db->execute() != "1") {
-                    $e = new Errors( );
+                    $e = new Errors();
                     $e->SendErrorMessage(new ErrorException("Error en Save - Licencias :" . $query), "cpersonas.php - SaveLicencias", $licencias);
                     $db->CloseMysql();
                     return false;
@@ -388,7 +400,8 @@ class Persona {
         return false;
     }
 
-    function SaveArticulo() {
+    public function SaveArticulo()
+    {
         $query = "";
         try {
 
@@ -400,7 +413,7 @@ class Persona {
             if ($db->execute() == "1") {
                 $db->CloseMysql();
                 /* $e = new Errors();
-                  $e->SendErrorMessage(new Exception("depurando errores"), "personas.php - GrabarPersona", $query); */
+                $e->SendErrorMessage(new Exception("depurando errores"), "personas.php - GrabarPersona", $query); */
                 return true;
             } else {
                 $db->CloseMysql();
@@ -413,7 +426,8 @@ class Persona {
         return false;
     }
 
-    function BorrarArticulo() {
+    public function BorrarArticulo()
+    {
         $query = "";
         try {
             $query = "call personas_DelArt(" . $this->PersonaId . ", '" . $this->Fecha . "');
@@ -435,7 +449,8 @@ class Persona {
         return false;
     }
 
-    function GetArticulos($mes, $anio) {
+    public function GetArticulos($mes, $anio)
+    {
         $articulos = array();
         $query = "";
         try {
@@ -446,7 +461,7 @@ class Persona {
             if ($db->setQuery($query)) {
                 $articulos = $db->ListArray();
                 /* $e = new Errors();
-                  $e->SendErrorMessage(new Exception("testing datos"), "cpersonas.php - Search ". $query, $articulos); */
+            $e->SendErrorMessage(new Exception("testing datos"), "cpersonas.php - Search ". $query, $articulos); */
             }
             $db->CloseMysql();
 
@@ -458,7 +473,8 @@ class Persona {
         return null;
     }
 
-    function Search() {
+    public function Search()
+    {
         $personas = array();
         $query = "";
         try {
@@ -466,22 +482,25 @@ class Persona {
             $db->getInstance();
             $query = "call personas_search(" . $this->PersonaId . ", " . $this->FirstName . ", " . $this->LastName . ", " . $this->Legajo . ", " . $this->Active . ");
                     ";
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListObject();
+            }
+
             $db->CloseMysql();
             /* $e = new Errors();
-              $e->SendEr
-              rorMessage(new Exception("update act"), "cpersonas.php - Save", $query); */
+            $e->SendEr
+            rorMessage(new Exception("update act"), "cpersonas.php - Save", $query); */
             return $personas;
         } catch (
-        Exception $ex) {
+            Exception $ex) {
             $e = new Errors();
             $e->SendErrorMessage($ex, "cpersonas.php - Search", $query);
         }
         return null;
     }
 
-    function GetByPersonaId($anio) {
+    public function GetByPersonaId($anio)
+    {
         $personas = array();
         $query = "";
         try {
@@ -494,7 +513,7 @@ class Persona {
             }
             $db->CloseMysql();
             /*  $e = new Errors();
-              $e->SendErrorMessage(new Exception("testing"), "cpersonas.php - GetById", $personas); */
+            $e->SendErrorMessage(new Exception("testing"), "cpersonas.php - GetById", $personas); */
             return $personas;
         } catch (Exception $ex) {
             $e = new Errors();
@@ -503,7 +522,8 @@ class Persona {
         return null;
     }
 
-    function Insert() {
+    public function Insert()
+    {
 
         $query = "";
         try {
@@ -528,11 +548,12 @@ class Persona {
         return false;
     }
 
-    function Delete() {
+    public function Delete()
+    {
 
         $query = "";
         try {
-            $query .="call personas_delete(" . $this->PersonaId . ");
+            $query .= "call personas_delete(" . $this->PersonaId . ");
                     ";
             $db = new sqlprovider();
             $db->getInstance();
@@ -554,7 +575,8 @@ class Persona {
         return false;
     }
 
-    function GetAll() {
+    public function GetAll()
+    {
         $personas = array();
         $query = "";
         try {
@@ -563,8 +585,10 @@ class Persona {
             $query = "call personas_getAll();
                     ";
 
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListArray();
+            }
+
             $db->CloseMysql();
 
             return $personas;
@@ -575,7 +599,8 @@ class Persona {
         return null;
     }
 
-    function GetArtsDay() {
+    public function GetArtsDay()
+    {
         $personas = array();
         $query = "";
         try {
@@ -584,8 +609,10 @@ class Persona {
             $query = "call personas_getArtHoy();
                     ";
 
-            if ($db->setQuery($query))
+            if ($db->setQuery($query)) {
                 $personas = $db->ListArray();
+            }
+
             $db->CloseMysql();
 
             return $personas;
@@ -598,5 +625,3 @@ class Persona {
     }
 
 }
-
-?>

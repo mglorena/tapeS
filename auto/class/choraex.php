@@ -9,11 +9,11 @@ class HoraEx
 // Next comes the variable list as defined above
 // Note the key word 'var' and then a comma-separated list
 
-    public $HoraExId = 'NULL',
-    $ChoferId = 'NULL',
-    $Fecha = 'NULL',
-    $Entrada = 'NULL',
-    $Salida = 'NULL',
+    public $HoraExId = 0,
+    $PersonaId = 'NULL',
+    $Fecha = '00:00:00',
+    $Entrada = '00:00:00',
+    $Salida = '00:00:00',
     $Concepto = 'NULL',
     $Calculado = 'NULL',
     $Zona = 'NULL',
@@ -21,7 +21,7 @@ class HoraEx
     $DependenciaId = 'NULL',
     $Create = 'NULL',
     $Modified = 'NULL',
-    $VehiculoId = 'NULL',
+    $VehiculoId = 0,
     $TMEntrada = '00:00',
     $TMSalida = '00:00',
     $TTEntrada = '00:00',
@@ -153,7 +153,7 @@ class HoraEx
         try {
             $db = new sqlprovider();
             $db->getInstance();
-            $query = "call horaex_getByChofer(" . $this->ChoferId . ");";
+            $query = "call horaex_getByChofer(" . $this->PersonaId . ");";
 
             if ($db->setQuery($query)) {
                 $horaex = $db->ListObject();
@@ -192,7 +192,7 @@ class HoraEx
         $query = "";
         try {
 
-            $query = "call horaex_checkDuplicates(" . $this->HoraExId . "," . $this->ChoferId . ",'" . $this->Fecha . "'," . $this->DependenciaId . "," . $this->VehiculoId . ",'" . $this->Entrada . "','" . $this->Salida . "');";
+            $query = "call horaex_checkDuplicates(" . $this->HoraExId . "," . $this->PersonaId . ",'" . $this->Fecha . "'," . $this->DependenciaId . "," . $this->VehiculoId . ",'" . $this->Entrada . "','" . $this->Salida . "');";
             $db = new sqlprovider();
             $db->getInstance();
             if ($db->setQuery($query)) {
@@ -231,19 +231,21 @@ class HoraEx
         $query = "";
         try {
 
-            $query = "call horaex_update(" . $this->HoraExId . "," . $this->ChoferId . ",'" . $this->Fecha . "','" . $this->Entrada . "',
+            $query = "call horaex_update(" . $this->HoraExId . "," . $this->PersonaId . ",'" . $this->Fecha . "','" . $this->Entrada . "',
                 '" . $this->Salida . "','" . $this->Concepto . "'," . $this->Calculado . "," . $this->Zona . ",'" . $this->TotalHoras . "',
                 " . $this->DependenciaId . "," . $this->VehiculoId . ",'" . $this->TMEntrada . "','" . $this->TMSalida . "','" . $this->TTEntrada . "',
                 '" . $this->TTSalida . "','" . $this->Responsable . "','" . $this->Hora50 . "','" . $this->Hora100 . "'," . $this->Jornada . ");";
             $db = new sqlprovider();
             $db->getInstance();
+            //$error = new Errors();
+            //$error->SendDataMessage('horaex.php - SaveHoraEx', $query);
             // $val = $this->CheckDuplicates();
             //  if ($this->CheckDuplicates()) {
             if ($db->setQuery($query)) {
                 $horaextra = $db->ListArray();
                 if (isset($horaextra) == 1) {
                     $this->HoraExId = $horaextra[0][0];
-                    $db->CloseMysql();
+                    //$db->CloseMysql();
                     if ($this->AddDescansos()) {
                         $db->CloseMysql();
                         return true;

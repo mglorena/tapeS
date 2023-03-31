@@ -48,14 +48,43 @@ function SaveHoraEx($e)
 {
 
     try {
-        $horaex = json_decode($e);
+
+        $horaex = json_decode(utf8_encode($e), JSON_UNESCAPED_UNICODE);
         $hex = new HoraEx();
-        $hex->copy($horaex);
+        $hex->HoraExId = ($horaex['HoraExId'] ? $horaex['HoraExId'] : 0);
+        $hex->PersonaId = $horaex['PersonaId'];
+        $hex->Fecha = $horaex['Fecha'];
+        $hex->Entrada = $horaex['Entrada'];
+        $hex->Salida = $horaex['Salida'];
+        $hex->Concepto = utf8_decode($horaex['Concepto']);
+        $hex->Calculado = ($horaex['Calculado'] ? $horaex['Calculado'] : 0);
+        $hex->Zona = $horaex['Zona'];
+        $hex->TotalHoras = ($horaex['TotalHoras'] ? $horaex['TotalHoras'] : 0);
+        $hex->DependenciaId = $horaex['DependenciaId'];
+        //$hex->Create = $horaex['Create'];
+        //$hex->Modified = $horaex['Modified'];
+        $hex->VehiculoId = ($horaex['VehiculoId'] != "" ? $horaex['VehiculoId'] : 0);
+        $hex->TMEntrada = ($horaex['TMEntrada'] ? $horaex['TMEntrada'] : 0);
+        $hex->TMSalida = ($horaex['TMSalida'] ? $horaex['TMSalida'] : 0);
+        $hex->TTEntrada = ($horaex['TTEntrada'] ? $horaex['TTEntrada'] : 0);
+        $hex->TTSalida = ($horaex['TTSalida'] ? $horaex['TTSalida'] : 0);
+        $hex->Responsable = utf8_decode($horaex['Responsable']);
+        $hex->Hora50 = $horaex['Hora50'];
+        $hex->Hora100 = $horaex['Hora100'];
+        $hex->Descansos = $horaex['Descansos'];
+        $hex->EstadoId = ($horaex['EstadoId'] ? $horaex['EstadoId'] : 0);
+        $hex->Estado = ($horaex['Estado'] ? $horaex['Estado'] : 0);
+        $hex->Jornada = $horaex['Jornada'];
+        $error = new Errors();
+        $error->SendDataMessage('horaex.php - SaveHoraEx', $hex);
         return $hex->Save();
 
-    } catch (Exception $ex) {
+    } catch (Exception $excep) {
         $error = new Errors();
-        $error->SendErrorMessage($ex, 'horaex.php - SaveHoraEx', $e);
+        $error->SendErrorMessage($excep, 'horaex.php - SaveHoraEx', $e);
+
+    } finally {
+
     }
 }
 
@@ -108,8 +137,8 @@ function LoadGridOnly($mes, $anio, $personId, $dep)
         $horaexSearch = new HoraEx();
         $horaex = $horaexSearch->Search($mes, $anio, $personId, $dep);
         $response = array('1' => $horaex);
-        $e = new Errors();
-        $e->SendDataMessage("LoadGridOnly - despues de json", $horaex);
+        //$e = new Errors();
+        //$e->SendDataMessage("LoadGridOnly - despues de json", $horaex);
 
         return $response;
     } catch (Exception $ex) {
