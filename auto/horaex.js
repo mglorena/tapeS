@@ -821,13 +821,13 @@ function PopinHoraEx(action, record) {
       items: {
         xtype: "form",
         //frame: true,
-        defaultType: "textfield",
+       // defaultType: "textfield",
         //overflowY: "auto",
         bodyStyle: "padding: 15px;border:none;",
         //url: "file-upload.php",
         //fileUpload: true,
         //items: formFields,
-        //method: "post",
+        //method: "post", 
         buttons: [
           {
             text: btnText,
