@@ -63,14 +63,14 @@ class HoraEx
         return null;
     }
 
-    public function Search($mes, $anio, $choferId, $dep)
+    public function Search($mes, $anio, $personaId, $dep)
     {
         $horaex = array();
         $query = "";
         try {
             $db = new sqlprovider();
             $db->getInstance();
-            $query = "call horaex_search(" . $mes . "," . $anio . "," . $choferId . "," . $dep . ");";
+            $query = "call horaex_search(" . $mes . "," . $anio . "," . $personaId . "," . $dep . ");";
             if ($db->setQuery($query)) {
                 $horaex = $db->ListArray();
             }
@@ -86,27 +86,28 @@ class HoraEx
         return $horaex;
     }
 
-    public function SearchReporte($desde, $hasta, $mes, $anio, $choferId, $dep)
+    public function SearchReporte($desde, $hasta, $mes, $anio, $personaId, $dep)
     {
         $horaex = array();
         $query = "";
         try {
             $db = new sqlprovider();
             $db->getInstance();
-            $query = "call horaex_searchReporte('" . $desde . "','" . $hasta . "'," . $mes . "," . $anio . "," . $choferId . "," . $dep . ");";
+            $query = "call horaex_searchReporte('" . $desde . "','" . $hasta . "'," . $mes . "," . $anio . "," . $personaId . "," . $dep . ");";
+
             if ($db->setQuery($query)) {
                 $horaex = $db->ListArray();
             }
-
             $db->CloseMysql();
             return $horaex;
         } catch (Exception $ex) {
-            $e = new Errors();
+
             $e->SendErrorMessage($ex, "choraex.php - searchReporte", $query);
+            $e->SendDataMessage("Search Reporte - Hora ex", $query);
         }
         return $horaex;
     }
-    public function SearchRepByChofer($meses, $anio)
+    public function SearchRepByPersonas($meses, $anio)
     {
         $horaex = array();
         $query = "";

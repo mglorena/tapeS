@@ -1,15 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/****************/
 var date = new Date();
 var mes = date.getMonth() + 1;
 var anio = date.getFullYear();
-var CurrentObject, choferId = 0, depId = 0, desde = null, hasta = null;
-x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
-var grid, ridx, deps, ch, ve;
+var CurrentObject, personaId = 0, depId = 0, desde = null, hasta = null;
+x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+var grid, ridx, deps, pers, ve;
 var msg = function(title, msg) {
     Ext.Msg.show({
         title: title,
@@ -20,7 +15,20 @@ var msg = function(title, msg) {
         buttons: Ext.Msg.OK
     });
 };
-
+var gridid;
+function LoadGridOnly_callback(response) {
+  try {
+    data = ObjToArray(response[1]);
+    store = LoadStore(data);
+    grid = Ext.getCmp(gridid);
+    var store = grid.getStore();
+    store.setData(data);
+    var view = grid.getView();
+    view.refresh();
+  } catch (e) {
+    SendJsError(e, "LoadGridOnly_callback - horaexrep.js", response);
+  }
+}
 function GridPanel(store)
 {
     try
@@ -39,11 +47,11 @@ function GridPanel(store)
 
         var b = [0, 'Todos'];
 
-        var chg = ch.slice();
-        chg.push(b);
-        var choferes = new Ext.data.ArrayStore({
-            fields: ['ChoferId', 'Choferes'],
-            data: chg
+        var persg = pers.slice();
+        persg.push(b);
+        var personas = new Ext.data.ArrayStore({
+            fields: ['PersonaId', 'Personas'],
+            data: persg
         });
         var a = [0, 'Todas'];
 
@@ -88,8 +96,8 @@ function GridPanel(store)
                     }
                 },
                 {
-                    header: 'Chofer',
-                    dataIndex: 'ChoferName',
+                    header: 'Persona',
+                    dataIndex: 'PersonaName',
                     flex: 1
                 },
                 {
@@ -136,8 +144,8 @@ function GridPanel(store)
                 }
             ],
             renderTo: 'tblHoraEx',
-            width: 900,
-            height: 457,
+            width: '98%',
+            height: '80%',
             title: 'Horas Extraordinarias - Automotores UNSa',
             frame: true,
             tbar: [{
@@ -147,7 +155,7 @@ function GridPanel(store)
                     mode: 'local',
                     submitFormat: 'YYYY-mm-dd H:i:m',
                     value: desde,
-                    width: 85,
+                    width: 115,
                     listeners: {
                         blur: function(txt, record, idx) {
                             desde = txt.value;
@@ -156,7 +164,8 @@ function GridPanel(store)
                                 if (hasta instanceof Date)
                                     hasta = hasta.f("yyyy-MM-dd");
                                 desde = desde.f("yyyy-MM-dd");
-                                x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                                //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                                x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                             }
 
                         },
@@ -167,7 +176,8 @@ function GridPanel(store)
                                 if (hasta instanceof Date)
                                     hasta = hasta.f("yyyy-MM-dd");
                                 desde = desde.f("yyyy-MM-dd");
-                                x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                                //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                                x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                             }
                         }
                     }
@@ -179,7 +189,7 @@ function GridPanel(store)
                     mode: 'local',
                     submitFormat: 'YYYY-mm-dd H:i:m',
                     value: hasta,
-                    width: 85,
+                    width: 115,
                     listeners: {
                         blur: function(txt, record, idx) {
                             hasta = txt.value;
@@ -188,7 +198,8 @@ function GridPanel(store)
                                 hasta = hasta.f("yyyy-MM-dd");
                                 if (desde instanceof Date)
                                     desde = desde.f("yyyy-MM-dd");
-                                x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                                //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                                x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                             }
 
                         },
@@ -199,7 +210,8 @@ function GridPanel(store)
                                 hasta = hasta.f("yyyy-MM-dd");
                                 if (desde instanceof Date)
                                     desde = desde.f("yyyy-MM-dd");
-                                x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                                //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                                x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                             }
                         }
                     }
@@ -216,12 +228,13 @@ function GridPanel(store)
                     typeAhead: true,
                     mode: 'local',
                     value: mes,
-                    width: 90,
+                    width: 130,
                     emptyText: '......',
                     listeners: {
                         'select': function(combo, record, idx) {
                             mes = combo.value;
-                            x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                            //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                            x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                         }
                     }
                 }, {
@@ -235,38 +248,40 @@ function GridPanel(store)
                     typeAhead: true,
                     mode: 'local',
                     value: anio,
-                    width: 90,
+                    width: 130,
                     emptyText: '......',
                     listeners: {
                         'select': function(combo, record, idx) {
                             anio = combo.value;
-                            x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                            //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                            x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                         }
                     }
                 }
                 , {
                     xtype: 'combo',
-                    fieldLabel: 'Chofer',
-                    labelWidth: 40,
-                    store: choferes,
-                    id: 'ddlChoferes',
-                    valueField: 'ChoferId',
-                    displayField: 'Choferes',
-                    value: choferId,
+                    fieldLabel: 'Persona',
+                    labelWidth: 60,
+                    store: personas,
+                    id: 'ddlPersonas',
+                    valueField: 'PersonaId',
+                    displayField: 'Personas',
+                    value: personaId,
                     mode: 'local',
-                    width: 200,
+                    width: 350,
                     emptyText: '......',
                     listeners: {
                         'select': function(combo, record, idx) {
-                            choferId = combo.value;
-                            x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                            personaId = combo.value;
+                            //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                            x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                         }
                     }
 
                 }, {
                     xtype: 'combo',
                     fieldLabel: 'Dependencia',
-                    labelWidth: 70,
+                    labelWidth: 90,
                     store: stdeps,
                     id: 'ddlDependencias',
                     valueField: 'DependenciaId',
@@ -274,12 +289,13 @@ function GridPanel(store)
                     typeAhead: true,
                     mode: 'local',
                     value: depId,
-                    width: 220,
+                    width: 400,
                     emptyText: '......',
                     listeners: {
                         'select': function(combo, record, idx) {
                             depId = combo.value;
-                            x_LoadHoraEx(desde, hasta, mes, anio, choferId, depId, LoadHoraEx_callback);
+                            //x_LoadHoraEx(desde, hasta, mes, anio, personaId, depId, LoadHoraEx_callback);
+                            x_LoadGridOnly(desde, hasta, mes, anio, personaId, depId, LoadGridOnly_callback);
                         }
                     }
                 },
@@ -322,7 +338,7 @@ function ResumeHeader()
     var header = "<div>Universidad Nacional de Salta <br/> Dirección General de Obras y Servicios</div><br/>";
     try
     {
-        var chText = Ext.getCmp('ddlChoferes').rawValue;
+        var persText = Ext.getCmp('ddlPersonas').rawValue;
         var depText = Ext.getCmp('ddlDependencias').rawValue;
         var mes = Ext.getCmp('ddlMes').rawValue;
         var anio = Ext.getCmp('ddlAnio').rawValue;
@@ -331,31 +347,31 @@ function ResumeHeader()
         var title = "<div align='center'><u>HORAS EXTRAORDINARIAS </u></div>";
         var addHeader = "";
         var footer;
-        if (depText !== "Todas" && chText === "Todos")
+        if (depText !== "Todas" && persText === "Todos")
         {
             title = "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " + depText + "</div>";
             colshide = "5";
         }
-        if (depText !== "Todas" && chText !== "Todos")
+        if (depText !== "Todas" && persText !== "Todos")
         {
             title = "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " + depText + "</div>";
-            addHeader += "<div>Apellido y Nombre : " + chText + "</div>";
-            //addHeader += "<div>Cargo: Chofer</div>";
+            addHeader += "<div>Apellido y Nombre : " + persText + "</div>";
+            //addHeader += "<div>Cargo: Persona</div>";
             colshide = "4,5";
             footer = "<br/><br/><br/><div style='top:600;left:0'><table cellpadding='2' cellspacing='2' style='border-width:0px;'>" +
                     "<tr  style='border-width:0px;'><td  style='border-width:0px;'>--------------------</td><td  style='border-width:0px;'>----------------------------</td></tr>" +
-                    "<tr  style='border-width:0px;'><td  style='border-width:0px;'>Firma del Agente<br/>"+ chText +"</td><td  style='border-width:0px;'>Firma del Jefe Inmediato</td></tr></table></div>";
+                    "<tr  style='border-width:0px;'><td  style='border-width:0px;'>Firma del Agente<br/>"+ persText +"</td><td  style='border-width:0px;'>Firma del Jefe Inmediato</td></tr></table></div>";
 
         }
-        if (depText === "Todas" && chText !== "Todos")
+        if (depText === "Todas" && persText !== "Todos")
         {
-            title = "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " + chText + "</div>";
-            addHeader += "<div>Apellido y Nombre : " + chText + "</div>";
-            //addHeader += "<div>Cargo: Chofer</div>";
+            title = "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " + persText + "</div>";
+            addHeader += "<div>Apellido y Nombre : " + persText + "</div>";
+            //addHeader += "<div>Cargo: Persona</div>";
             colshide = '4';
             footer = "<br/><br/><br/><div style='top:600;left:0'><table cellpadding='2' cellspacing='2' style='border-width:0px;'>" +
                     "<tr  style='border-width:0px;'><td  style='border-width:0px;'>--------------------</td><td  style='border-width:0px;'>----------------------------</td></tr>" +
-                    "<tr  style='border-width:0px;'><td  style='border-width:0px;'>Firma del Agente<br/>"+ chText +"</td><td  style='border-width:0px;'>Firma del Jefe Inmediato</td></tr></table></div>";
+                    "<tr  style='border-width:0px;'><td  style='border-width:0px;'>Firma del Agente<br/>"+ persText +"</td><td  style='border-width:0px;'>Firma del Jefe Inmediato</td></tr></table></div>";
         }
         header += title;
         header += "<div>Fecha Emisión: " + (new Date()).f('dd/MM/yyyy') + "<br/> Mes/Año : " + mes + "/" + anio + "</div>";
@@ -367,42 +383,74 @@ function ResumeHeader()
         SendJsError(e, "ResumeHeader - horaexrep.js", header);
     }
 }
-
+function LoadModel() {
+    Ext.define("HoraEx", {
+      extend: "Ext.data.Model",
+      fields: [
+        "HoraExId",
+        "PersonaId",
+        "Interrupciones",
+        "Hora100",
+        "Hora50",
+        "Responsable",
+        "Dependencia",
+        "TTEntrada",
+        "TTSalida",
+        "TMEntrada",
+        "TMSalida",
+        "Fecha",
+        "FechaG",
+        "Entrada",
+        "Salida",
+        "Horario",
+        "Concepto",
+        "Calculado",
+        "DescansosId",
+        "Zona",
+        "TotalHoras",
+        "DependenciaId",
+        "Create",
+        "Modified",
+        "VehiculoId",
+        "PersonaName",
+        "Laboral",
+        "Jornada",
+        "EstadoId",
+        "Estado",
+      ],
+    });
+  }
+  function LoadStore(data) {
+     store = Ext.create('Ext.data.Store', {
+        autoDestroy: true,
+        model: 'HoraEx',
+        proxy: {
+            type: 'memory'
+        },
+        data: data,
+        sorters: [{
+                property: 'Modelo',
+                direction: 'ASC'
+            }]
+    });
+    return store;
+  }
+  
+var grid,store,gridid;
 function LoadHoraEx_callback(response)
 {
     try
     {
-        $("#tblHoraEx").html("");
         var data = ObjToArray(response[1]);
         deps = ObjToArray(response[2]);
-        ch = ObjToArray(response[3]);
+        pers = ObjToArray(response[3]);
         ve = ObjToArray(response[4]);
         Ext.onReady(function() {
-            Ext.define('HoraEx', {
-                extend: 'Ext.data.Model',
-                fields: ['HoraExId', 'ChoferId', 'Interrupciones',
-                    {
-                        name: 'Hora100',
-                        type: 'time'
-                    }, {
-                        name: 'Hora50',
-                        type: 'time'
-                    }, 'Responsable', 'Dependencia', 'TTEntrada', 'TTSalida', 'TMEntrada', 'TMSalida',
-                    'Fecha', 'FechaG', 'Entrada', 'Salida', 'Horario', 'Concepto', 'Calculado', 'DescansosId', 'Zona', 'TotalHoras', 'DependenciaId', 'Create', 'Modified', 'VehiculoId', 'ChoferName', 'Laboral', 'Jornada']
-            });
-            var store = Ext.create('Ext.data.Store', {
-                autoDestroy: true,
-                model: 'HoraEx',
-                proxy: {
-                    type: 'memory'
-                },
-                data: data,
-                sorters: [{
-                        property: 'Modelo',
-                        direction: 'ASC'
-                    }]
-            });
-            var grid = GridPanel(store, ch, deps);
+            LoadModel();
+            store =LoadStore(data);
+            grid = GridPanel(store, pers, deps);
+            gridid = grid.id;
+            grid.show();
         });
     }
     catch (e)

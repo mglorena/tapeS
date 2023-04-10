@@ -4,6 +4,74 @@ var CurrentObject;
 var meses;
 x_LoadHoraEx(meses, anio, LoadHoraEx_callback);
 var grid, ridx;
+var gridid;
+function LoadGridOnly_callback(response) {
+  try {
+    data = ObjToArray(response[1]);
+    store = LoadStore(data);
+    grid = Ext.getCmp(gridid);
+    var store = grid.getStore();
+    store.setData(data);
+    var view = grid.getView();
+    view.refresh();
+  } catch (e) {
+    SendJsError(e, "LoadGridOnly_callback - horaexrepch.js", response);
+  }
+}
+function LoadModel() {
+    Ext.define("HoraEx", {
+      extend: "Ext.data.Model",
+      fields: [
+        "HoraExId",
+        "PersonaId",
+        "Interrupciones",
+        "Hora100",
+        "Hora50",
+        "Responsable",
+        "Dependencia",
+        "TTEntrada",
+        "TTSalida",
+        "TMEntrada",
+        "TMSalida",
+        "Fecha",
+        "FechaG",
+        "Entrada",
+        "Salida",
+        "Horario",
+        "Concepto",
+        "Calculado",
+        "DescansosId",
+        "Zona",
+        "TotalHoras",
+        "DependenciaId",
+        "Create",
+        "Modified",
+        "VehiculoId",
+        "PersonaName",
+        "Laboral",
+        "Jornada",
+        "EstadoId",
+        "Estado",
+      ],
+    });
+  }
+  function LoadStore(data) {
+     store = Ext.create('Ext.data.Store', {
+        autoDestroy: true,
+        model: 'HoraEx',
+        proxy: {
+            type: 'memory'
+        },
+        data: data,
+        sorters: [{
+                property: 'Modelo',
+                direction: 'ASC'
+            }]
+    });
+    return store;
+  }
+  
+var grid,store,gridid;
 
 function GridPanel(store)
 {
@@ -15,7 +83,7 @@ function GridPanel(store)
             data: mess
         });
 
-        var anios = [[2011, '2011'], [2012, '2012'], [2013, '2013'], [2014, '2014'], [2015, '2015'], [2016, '2016'], [2017, '2017'], [2018, '2018'], [2019, '2019'], [2020, '2020']];
+        var anios = [[2018, '2018'], [2019, '2019'], [2020, '2020'],[2021, '2021'], [2022, '2022'], [2023, '2023'], [2024, '2024'],[2025, '2025'], [2026, '2026'], [2027, '2027']];
         var stanio = new Ext.data.ArrayStore({
             fields: ['id', 'anio'],
             data: anios
@@ -79,8 +147,8 @@ function GridPanel(store)
                 }
             ],
             renderTo: 'tblHoraEx',
-            width: 900,
-            height: 457,
+            width: '98%',
+            height: '80%',
             title: 'Horas Extraordinarias - Automotores UNSa',
             frame: true,
             tbar: [
@@ -94,12 +162,12 @@ function GridPanel(store)
                     displayField: 'mes',
                     multiSelect: true,
                     value: meses,
-                    width: 250,
+                    width: 200,
                     listeners: {
                         change: function (thisCmb, newValue, oldValue) {
                             meses = (Ext.getCmp('ddlMes').getValue()).sort();
                             anio = Ext.getCmp('ddlAnio').rawValue;
-                            x_LoadHoraEx(meses, anio, LoadHoraEx_callback);
+                            x_LoadGridOnly(meses, anio, LoadGridOnly_callback);
 
                         }
                     }
@@ -114,12 +182,12 @@ function GridPanel(store)
                     typeAhead: true,
                     mode: 'local',
                     value: anio,
-                    width: 90,
+                    width: 130,
                     listeners: {
                         change: function (thisCmb, newValue, oldValue) {
                             //meses = (Ext.getCmp('ddlMes').getValue()).sort();
                             anio = Ext.getCmp('ddlAnio').rawValue;
-                            x_LoadHoraEx(meses, anio, LoadHoraEx_callback);
+                            x_LoadGridOnly(meses, anio, LoadGridOnly_callback);
                         },
                         beforerender: function (thisCmb, eOpts) {
                         }
@@ -198,41 +266,19 @@ function LoadHoraEx_callback(response)
 
     try
     {
-        $("#tblHoraEx").html("");
         var data = ObjToArray(response[1]);
-
-        Ext.onReady(function () {
-            var win;
-            Ext.define('HoraEx', {
-                extend: 'Ext.data.Model',
-                fields: ['Leg', 'Mes', 'Nombre',
-                    {
-                        name: 'HorasHabiles',
-                        type: 'time'
-                    }, {
-                        name: 'HorasInhabiles',
-                        type: 'time'
-                    }, 'Dependencia']
-            });
-            // create the Data Store
-            var store = Ext.create('Ext.data.Store', {
-                autoDestroy: true,
-                model: 'HoraEx',
-                proxy: {
-                    type: 'memory'
-                },
-                data: data,
-                sorters: [{
-                        property: 'Modelo',
-                        direction: 'ASC'
-                    }]
-            });
-            var grid = GridPanel(store);
+      
+        Ext.onReady(function() {
+            LoadModel();
+            store =LoadStore(data);
+            grid = GridPanel(store);
+            gridid = grid.id;
+            grid.show();
         });
     }
     catch (e)
     {
-        SendJsError(e, "ResumeHeader - horaexrepch.js", response);
+        SendJsError(e, "LoadHoraEx_callback - horaexrepch.js", response);
     }
 }
 

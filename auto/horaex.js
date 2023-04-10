@@ -6,7 +6,7 @@ var CurrentObject;
 var personaId, depId;
 personaId = 0;
 depId = 0;
-var grid, ridx, deps, ch, ve;
+var grid, ridx, deps, pers, ve;
 var data, store;
 
 x_LoadHoraEx(mes, anio, personaId, depId, LoadHoraEx_callback);
@@ -64,7 +64,7 @@ function LoadStore(data) {
   });
   return store;
 }
-function LoadToolbas() {}
+
 function GridPanel(store) {
   try {
     var meses = [
@@ -102,12 +102,12 @@ function GridPanel(store) {
       data: anios,
     });
     var b = [0, "Todos"];
-    var chg = ch.slice();
-    chg.push(b);
+    var persg = pers.slice();
+    persg.push(b);
 
     var personas = new Ext.data.ArrayStore({
       fields: ["PersonaId", "Personas"],
-      data: chg,
+      data: persg,
     });
     var a = [0, "Todas"];
     var depsg = deps.slice();
@@ -403,12 +403,12 @@ function LoadHoraEx_callback(response) {
     $("#tblHoraEx").html("");
     data = ObjToArray(response[1]);
     deps = ObjToArray(response[2]);
-    ch = ObjToArray(response[3]);
+    pers = ObjToArray(response[3]);
     ve = ObjToArray(response[4]);
     Ext.onReady(function () {
       LoadModel();
       store = LoadStore(data);
-      grid = GridPanel(store, ch, deps);    
+      grid = GridPanel(store, pers, deps);    
       gridid = grid.id;
       grid.show();
     });
@@ -517,7 +517,7 @@ function LoadCmbPersonas(record,required)
 {
   var stpersonas = new Ext.data.ArrayStore({
     fields: ["PersonaId", "Personas"],
-    data: ch,
+    data: pers,
   });
   var cmbPersonas = Ext.create("Ext.form.field.ComboBox", {
       xtype: "combo",
@@ -1039,7 +1039,7 @@ function SaveEstado_callback(response) {
 }
 function ResumeHeader() {
   try {
-    var chText = Ext.getCmp("ddlPersonas").rawValue;
+    var persText = Ext.getCmp("ddlPersonas").rawValue;
     var depText = Ext.getCmp("ddlDependencias").rawValue;
     var mes = Ext.getCmp("ddlMes").rawValue;
     var anio = Ext.getCmp("ddlAnio").rawValue;
@@ -1048,28 +1048,28 @@ function ResumeHeader() {
       "<div>Universidad Nacional de Salta <br/> Dirección General de Obras y Servicios</div><br/>";
     var title = "<div align='center'><u>HORAS EXTRAORDINARIAS </u></div>";
     var addHeader = "";
-    if (depText !== "Todas" && chText === "Todos") {
+    if (depText !== "Todas" && persText === "Todos") {
       title =
         "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " +
         depText +
         "</div>";
       colshide = "5";
     }
-    if (depText !== "Todas" && chText !== "Todos") {
+    if (depText !== "Todas" && persText !== "Todos") {
       title =
         "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " +
         depText +
         "</div>";
-      addHeader += "<div>Apellido y Nombre : " + chText + "</div>";
+      addHeader += "<div>Apellido y Nombre : " + persText + "</div>";
       addHeader += "<div>Cargo: Persona</div>";
       colshide = "4,5";
     }
-    if (depText === "Todas" && chText !== "Todos") {
+    if (depText === "Todas" && persText !== "Todos") {
       title =
         "<div align='center'><u>HORAS EXTRAORDINARIAS </u>: " +
-        chText +
+        persText +
         "</div>";
-      addHeader += "<div>Apellido y Nombre : " + chText + "</div>";
+      addHeader += "<div>Apellido y Nombre : " + persText + "</div>";
       addHeader += "<div>Cargo: Persona</div>";
       colshide = "4";
     }

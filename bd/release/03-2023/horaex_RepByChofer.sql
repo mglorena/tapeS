@@ -1,5 +1,5 @@
 CREATE DEFINER=`tape`@`localhost` PROCEDURE `horaex_RepByChofer`(
-IN meses VARCHAR(5),
+IN meses VARCHAR(50),
 IN a INT
 )
 BEGIN
@@ -10,7 +10,7 @@ SELECT Count(*) FROM SplitValues INTO c;
 SET lc_time_names = 'es_AR';
 SET c = c + 1;
 
-CREATE TEMPORARY TABLE RepChofer
+CREATE TEMPORARY TABLE RepPersona
 (
  Leg INT(5) NOT NULL ,
  Nombre varchar(250),
@@ -24,10 +24,10 @@ CREATE TEMPORARY TABLE RepChofer
 WHILE c > 0 DO
     SELECT value FROM SplitValues  LIMIT 1 into mes ;
 
-    INSERT INTO RepChofer (Leg,Nombre, Mes,HorasHabiles,HorasInhabiles,Dependencia)
+    INSERT INTO RepPersona (Leg,Nombre, Mes,HorasHabiles,HorasInhabiles,Dependencia)
     SELECT 
     Legajo as Leg,
-    CONCAT(FirstName,' ',LastName) as Chofer,
+    UPPER(CONCAT(Personas.Nombre,' ',Personas.Apellido)) as Persona,
     CONCAT(CONVERT(MONTHNAME(HorasExtra.Fecha),char(15)),'/',CONVERT(DATE_FORMAT(HorasExtra.Fecha,'%y'),char(5))) as Mes,
     SEC_TO_TIME( SUM( TIME_TO_SEC( `Hora50` ) ) )  as 'Hs. Habiles',
     SEC_TO_TIME( SUM( TIME_TO_SEC( `Hora100` ) ) ) as 'Hs. Inhabiles',
@@ -45,8 +45,8 @@ WHILE c > 0 DO
     SET c = c-1;
 END WHILE;
 
-SELECT * FROM RepChofer
+SELECT * FROM RepPersona
 GROUP BY Leg,Nombre,Dependencia
 ;
-DROP TABLE RepChofer;
+DROP TABLE RepPersona;
 END

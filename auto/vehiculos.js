@@ -38,7 +38,7 @@ function PopinUpdateKm(record)
 
     var win = Ext.create("Ext.window.Window", {
         title: 'Actualización de Kilometraje',
-        bodyStyle: "padding: 5px",
+        bodyStyle: "padding: 15px;boder:none;",
         closable: true,
         modal: true,
         items: {
@@ -264,13 +264,13 @@ function PopinVehiculo(action, record, tipos, tcmb)
         bodyStyle: "padding: 5px",
         width: 440,
         closable: true,
-        layout: 'fit',
+        //layout: 'fit',
         modal: true,
         items: {
             xtype: "form",
-            frame: true,
+            //frame: true,
             defaultType: "textfield",
-            overflowY: 'auto',
+            //overflowY: 'auto',
             items: formFields,
             buttons: [
                 {

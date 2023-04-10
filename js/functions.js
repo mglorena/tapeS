@@ -109,7 +109,7 @@ function parseString(args) {
 
 function SendJsError(obj, location, data) {
 
-    alert("llega");
+    
     var sExtraData = new String();
     try {
        /* console.log("Error in javascript - function SendJsError");

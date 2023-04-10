@@ -2,17 +2,19 @@
 require_once '/var/www/html/tape/class/cerrors.php';
 require_once '/var/www/html/tape/class/cconf.php';
 
-class sqlprovider {
+class sqlprovider
+{
 
-    var $conexion;
-    var $resource;
-    var $sql;
-    var $queries;
-    var $singleton;
+    public $conexion;
+    public $resource;
+    public $sql;
+    public $queries;
+    public $singleton;
 
     /* var $dbname = $BD_NAME; */
 
-    function getInstance() {
+    public function getInstance()
+    {
 
         if (isset($this->singleton)) {
             $this->$singleton = new DataBase();
@@ -20,7 +22,8 @@ class sqlprovider {
         return $this->singleton;
     }
 
-    function execute() {
+    public function execute()
+    {
         $error = new Errors();
         try {
 
@@ -31,31 +34,32 @@ class sqlprovider {
             mysqli_select_db($this->conexion, Conf::BD_NAME);
             $this->queries = 0;
             $this->resource = null;
-	    mysqli_query($this->conexion,"SET character_set_client=utf8"); 
-	    mysqli_query($this->conexion,"SET character_set_connection=utf8"); 
-	    mysqli_query($this->conexion,"SET character_set_database=utf8"); 
-	    mysqli_query($this->conexion,"SET character_set_results=utf8"); 
-	    mysqli_query($this->conexion,"SET character_set_server=utf8"); 
-	    mysqli_query($this->conexion,"SET NAMES 'utf8'");
+            mysqli_query($this->conexion, "SET character_set_client=utf8");
+            mysqli_query($this->conexion, "SET character_set_connection=utf8");
+            mysqli_query($this->conexion, "SET character_set_database=utf8");
+            mysqli_query($this->conexion, "SET character_set_results=utf8");
+            mysqli_query($this->conexion, "SET character_set_server=utf8");
+            mysqli_query($this->conexion, "SET NAMES 'utf8'");
             $this->sql = utf8_encode($this->sql);
-	    if(!$this->conexion->set_charset("utf8")){
-		  $error->SendMysqlErrorMessage("Error cargando el conjunto de caracteres utf8: %\n", $this->conexion->error);
-	      
-	    }
+            if (!$this->conexion->set_charset("utf8")) {
+                $error->SendMysqlErrorMessage("Error cargando el conjunto de caracteres utf8: %\n", $this->conexion->error);
+
+            }
             if (!($this->resource = mysqli_query($this->conexion, $this->sql))) {
-                $error->SendMysqlErrorMessage(mysqli_error($this->conexion), "csqlprovider.php", "execute", $this->sql."---".mysqli_error($this->conexion));
+                $error->SendMysqlErrorMessage(mysqli_error($this->conexion), "csqlprovider.php", "execute", $this->sql . "---" . mysqli_error($this->conexion));
                 return null;
             }
             $this->queries++;
             return $this->resource;
         } catch (Exception $ex) {
 
-            /*$error->SendMysqlErrorMessage(mysqli_error($this->conexion), "csqlprovider.php", "execute", $this->sql . $ex->Message);*/
+            $error->SendMysqlErrorMessage(mysqli_error($this->conexion), "csqlprovider.php", "execute", $this->sql . $ex->Message);
         }
         return null;
     }
 
-    function update() {
+    public function update()
+    {
         // echo $this->sql;
         if (!($this->resource = mysqli_query($this->conexion, $this->sql))) {
             $error = new Errors();
@@ -65,11 +69,13 @@ class sqlprovider {
         return true;
     }
 
-    function ErrorDetail() {
+    public function ErrorDetail()
+    {
         return mysqli_error($this->conexion);
     }
 
-    function ListArray() {
+    public function ListArray()
+    {
         if (!($cur = $this->execute())) {
 
             return null;
@@ -81,7 +87,8 @@ class sqlprovider {
         return $array;
     }
 
-    function ListObject() {
+    public function ListObject()
+    {
 
         if (!($cur = $this->execute())) {
 
@@ -95,7 +102,8 @@ class sqlprovider {
         return $array;
     }
 
-    function ListObject2() {
+    public function ListObject2()
+    {
         if (!($cur = $this->execute())) {
 
             return null;
@@ -108,7 +116,8 @@ class sqlprovider {
         return $array;
     }
 
-    function setQuery($sql) {
+    public function setQuery($sql)
+    {
         if (empty($sql)) {
             return false;
         }
@@ -116,12 +125,14 @@ class sqlprovider {
         return true;
     }
 
-    function freeResults() {
+    public function freeResults()
+    {
         @mysqli_free_result($this->resource);
         return true;
     }
 
-    function getObject() {
+    public function getObject()
+    {
         if ($cur = $this->execute()) {
             if ($object = mysqli_fetch_object($cur)) {
                 @mysqli_free_result($cur);
@@ -136,10 +147,10 @@ class sqlprovider {
         }
     }
 
-    function CloseMysql() {
-       // @mysqli_free_result($this->resource);
+    public function CloseMysql()
+    {
+        // @mysqli_free_result($this->resource);
         @mysqli_close($this->conexion);
     }
 
 }
-?>

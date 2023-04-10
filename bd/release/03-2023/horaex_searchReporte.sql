@@ -29,7 +29,8 @@ DATE_FORMAT(HorasExtra.TMSalida,"%H:%i") as TMSalida,
 DATE_FORMAT(HorasExtra.TMEntrada,"%H:%i") as TMEntrada,
 DATE_FORMAT(HorasExtra.TTSalida,"%H:%i") as TTSalida,
 DATE_FORMAT(HorasExtra.TTEntrada,"%H:%i") as TTEntrada,
-REPLACE(CONCAT(DATE_FORMAT(HorasExtra.Entrada,"%H:%i"),' a ',DATE_FORMAT(HorasExtra.Salida,"%H:%i")),'00:00','24:00') as Horario,
+-- REPLACE(CONCAT(DATE_FORMAT(HorasExtra.Entrada,"%H:%i"),' a ',DATE_FORMAT(HorasExtra.Salida,"%H:%i")),'00:00','24:00') as Horario,
+CONCAT(DATE_FORMAT(HorasExtra.Entrada,"%H:%i"),' a ',DATE_FORMAT(HorasExtra.Salida,"%H:%i")) as Horario,
 `HorasExtra`.`Concepto`,
 `HorasExtra`.`Calculado`,
 `HorasExtra`.`Zona`,
@@ -69,7 +70,7 @@ INNER JOIN Dependencias ON Dependencias.DependenciaId = HorasExtra.DependenciaId
 LEFT JOIN Descansos ON Descansos.HoraExId = HorasExtra.HoraExId
 
 WHERE 
-      (chId is Null or HorasExtra.ChoferId = chId)
+      (perId is Null or HorasExtra.PersonaId = perId)
    AND
       ((mes IS NULL OR anio IS NULL) OR
       DATE(HorasExtra.Fecha) BETWEEN DATE(CONCAT(anio,'-',mes,'-','01'))  AND LAST_DAY( DATE(CONCAT(anio,'-',mes,'-','01'))) )
