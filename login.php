@@ -1,15 +1,16 @@
 <?php
 session_start();
-require_once ('class/cusers.php');
+require_once 'class/cusers.php';
 $login = "";
-if (isset($_POST["txtUsername"]))
+if (isset($_POST["txtUsername"])) {
     $login = $_POST["txtUsername"];
-else {
+} else {
     $_POST["txtUsername"] = "";
     $login = "";
 }
 
-function Login() {
+function Login()
+{
     if (isset($_POST["btnInvitado"])) {
         $loginUser = new User();
         $loginUser->UserName = 'invitado';
@@ -64,9 +65,9 @@ header('Content-Type: text/html; charset=UTF-8');
 
                 <table cellpadding="0" cellspacing="0">
                     <tr>
-                        <td align="center"> 
+                        <td align="center">
 
-                            <a href="index.php"><img src="images/logo.png" border="0"></img></a>
+                            <a href="index.php"><img src="images/logotransp3.png" border="0"></img></a>
 
                             <!--  <div style="text-shadow: -3px -2px 5px rgba(0, 0, 0, .4);
                                                    color: #3D5279; font-size:3em;-webkit-margin-before: 0.17em;
@@ -76,7 +77,7 @@ header('Content-Type: text/html; charset=UTF-8');
                                                    font-weight: bold;">TAPE
                                   <div style="text-shadow: 0 1px 0 #fff, 0 -1px 0 #000;
                                        color: #798396;font-size:0.4em;">Dirección General de Obras y Servicios</div></div>
-  
+
                               </div>--></td>
                     </tr>
                     <tr><td style="height:15px;">&nbsp;</td></tr>
@@ -103,7 +104,8 @@ header('Content-Type: text/html; charset=UTF-8');
 
                             <!--<div id="divInvitado" align='center' style='padding:20px;'>
                                 <a href='auto/calendario.php?nologin=yes'>Ver Calendario</a>
-                            </div>-->
+                            </div>
+-->
                         </td></tr>
                 </table>
                 <div><?php

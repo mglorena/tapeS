@@ -1,41 +1,48 @@
 <?php
-require_once ('class/cvehiculos.php');
-require_once ('class/ctipovehiculo.php');
-require_once ('../class/cdump.php');
+require_once 'class/cvehiculos.php';
+require_once 'class/ctipovehiculo.php';
+require_once '../class/cdump.php';
 
-require_once ('../class/cconf.php');
-require("../class/csajax.php");
+require_once '../class/cconf.php';
+require "../class/csajax.php";
 $sajax_request_type = "POST";
 sajax_init();
 sajax_export("SaveVehiculo", "LoadVehiculos", "DeleteVehiculo", "UpdateKm", "SendJsError");
 sajax_handle_client_request();
-require_once ('/var/www/html/tape/class/cerrors.php');
-function SendJsError($ex, $pageName, $object) {
+require_once '/var/www/html/tape/class/cerrors.php';
+function SendJsError($ex, $pageName, $object)
+{
 
     $errorS = new Errors();
     return $errorS->SendJsErrorMessage($ex, $pageName, $object);
 }
-function SecurityPage() {
+function SecurityPage()
+{
     $rulesIds = explode(",", $_SESSION['S_rules']);
 
     if (!in_array(16, $rulesIds)) { // ver la pagina vehiculos
         echo "<script>window.location ='" . $HOST_URL . "noautorization.php?p=Vehiculos';</script>";
     }
     echo "<script>";
-    if (!in_array(17, $rulesIds)) // editor o borrar
+    if (!in_array(17, $rulesIds)) {
         echo "var hasUpdate =false;";
-    else
+    } else {
         echo "var hasUpdate =true;";
-    if (!in_array(18, $rulesIds)) // insertar 
+    }
+
+    if (!in_array(18, $rulesIds)) {
         echo "var hasInsert =false;";
-    else
+    } else {
         echo "var hasInsert =true;";
+    }
+
     echo "var rootDir ='" . Conf::ROOT . "';";
     echo "</script>";
     //echo do_dump($rulesIds);
 }
 
-function UpdateKm($vehiculoId, $km, $user) {
+function UpdateKm($vehiculoId, $km, $user)
+{
     $ve = new Vehiculo();
     try {
 
@@ -50,12 +57,25 @@ function UpdateKm($vehiculoId, $km, $user) {
     return false;
 }
 
-function SaveVehiculo($v) {
+function SaveVehiculo($v)
+{
     $ve = new Vehiculo();
 
     try {
-        $vehiculo = json_decode($v);
-        $ve->copy($vehiculo);
+
+        $vehiculo = json_decode(utf8_encode($v), JSON_UNESCAPED_UNICODE);
+        $ve->Modelo = $vehiculo['Modelo'];
+        $ve->Patente = $vehiculo['Patente'];
+        $ve->CombustibleId = $vehiculo['CombustibleId'];
+        $ve->Capacidad = $vehiculo['Modelo'];
+        $ve->Fecha = $vehiculo['Modelo'];
+        $ve->Descripcion = $vehiculo['Modelo'];
+        $ve->ConsumoxKM = $vehiculo['Modelo'];
+        $ve->Color = $vehiculo['Modelo'];
+        $ve->TipoVehiculoId = $vehiculo['Modelo'];
+        $ve->Kilometraje = $vehiculo['Modelo'];
+        $ve->UserName = $vehiculo['Modelo'];
+        $ve->Active = $vehiculo['Modelo'];
         $ve->Active = ($ve->Active == "on" ? "1" : "0");
         return $ve->Save();
     } catch (Exception $ex) {
@@ -65,32 +85,33 @@ function SaveVehiculo($v) {
     return false;
 }
 
-function DeleteVehiculo($vehiculoId) {
+function DeleteVehiculo($vehiculoId)
+{
 
     $ve = new Vehiculo();
     $ve->VehiculoId = $vehiculoId;
     return $ve->Delete();
 }
 
-function LoadVehiculos() {
+function LoadVehiculos()
+{
 
     $vehiculoSearch = new Vehiculo();
     $vehiculos = $vehiculoSearch->Search();
     $tve = new TipoVehiculo();
 
-
     $return = array("1" => $vehiculos, "2" => $tve->GetAll(), "3" => $tve->GetCombustibles());
     return $return;
 }
 ?>
-<?php include "../include/header.php"; ?>
-<?php include "../include/menu.php"; ?>
+<?php include "../include/header.php";?>
+<?php include "../include/menu.php";?>
 <script>
 <?php
 sajax_show_javascript();
 ?>
 </script>
-<?php SecurityPage(); ?>
+<?php SecurityPage();?>
 <?php
 echo '<script type="text/javascript" src="vehiculos.js?' . Conf::VERSION . '"></script>';
 ?>
@@ -98,4 +119,4 @@ echo '<script type="text/javascript" src="vehiculos.js?' . Conf::VERSION . '"></
     <div id="tblVehiculos"></div>
 </div>
 
-<?php include "../include/footer.php"; ?>
+<?php include "../include/footer.php";?>

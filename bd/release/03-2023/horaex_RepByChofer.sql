@@ -5,6 +5,7 @@ IN a INT
 BEGIN
 DECLARE c INT DEFAULT 0;
 DECLARE mes INT DEFAULT 0;
+IF(meses = 'undefined' ) THEN SET meses = NULL; END IF;
 call split_string(meses,',');
 SELECT Count(*) FROM SplitValues INTO c;
 SET lc_time_names = 'es_AR';

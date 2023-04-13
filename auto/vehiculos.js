@@ -74,7 +74,7 @@ function PopinUpdateKm(record)
 
             ],
             listeners: {
-                afterrender: function() {
+               /* afterrender: function() {
                     var that = this;
                     setTimeout(function() {
                         that.items.first().focus();
@@ -86,7 +86,7 @@ function PopinUpdateKm(record)
                         },
                         scope: this
                     });
-                }
+                }*/
             }
         }
     });
@@ -261,16 +261,17 @@ function PopinVehiculo(action, record, tipos, tcmb)
         title = "Editar Vehiculo";
     var win = Ext.create("Ext.window.Window", {
         title: title,
-        bodyStyle: "padding: 5px",
+        bodyStyle: "padding: 15px;border:none;",
         width: 440,
         closable: true,
         //layout: 'fit',
-        modal: true,
+        //modal: true,
         items: {
             xtype: "form",
             //frame: true,
             defaultType: "textfield",
             //overflowY: 'auto',
+            bodyStyle: "padding: 15px;border:none;",
             items: formFields,
             buttons: [
                 {
@@ -294,7 +295,7 @@ function PopinVehiculo(action, record, tipos, tcmb)
 
             ],
             listeners: {
-                afterrender: function() {
+               /* afterrender: function() {
                     var that = this;
                     setTimeout(function() {
                         that.items.first().focus();
@@ -306,7 +307,7 @@ function PopinVehiculo(action, record, tipos, tcmb)
                         },
                         scope: this
                     });
-                }
+                }*/
             }
         }
     });
@@ -412,8 +413,8 @@ function GridPanel(store, tve, tcmb)
             }
         ],
         renderTo: 'tblVehiculos',
-        width: 900,
-        height: 457,
+        width: '98%',
+        height: '80%',
         title: 'Vehiculos - Automotores UNSa',
         frame: true,
         tbar: [{

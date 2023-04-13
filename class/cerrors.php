@@ -92,24 +92,37 @@ class Errors
             if (!isset($ex)) {
                 $ex = 'Error mensaje - testing';
             }
-
+            $exporte = var_export($object, true);
             $name = "/var/www/html/tape/error1.sql";
             $ar = fopen($name, "a");
-            fputs($ar, $pageName);
+            fputs($ar, "==================================\n");
+            fputs($ar, "Error: " . $ex . "\n");
+            fputs($ar, "Pagina: " . $pageName . "\n");
+            fputs($ar, "Metodo: " . $method . "\n");
+            fputs($ar, "Objeto: " . $exporte . "\n");
+
             fclose($ar);
             $subject = 'Error reporte - TAPE' . " - HOST:" . $_SERVER['SERVER_ADDR'] . " - " . $ex;
             $body = "<b>Error Report - SendMysqlErrorMessage</b><br/>";
-            $body .= "<br/><b>File name:</b>" . $pageName;
-            $body .= "<br/><b>Method:</b>" . $method;
-            $body .= "<br/><b>Message: </b><br/>" . $ex;
-            $body .= "<br/><br/><b>Browser Info</b><br/>";
-            $browser = new Browser();
-            $body .= "<b>Browser:</b>" . $browser->getBrowser() . "<br/>";
-            $body .= "<b>Browser Version:</b>" . $browser->getVersion() . "<br/>";
-            $exporte = var_export($object, true);
-            $body .= "<br/>" . $exporte;
-            $body .= "<br/>SERVER:" . (!isset($_SERVER['SERVER_ADDR']) ? '192.168.5.3' : $_SERVER['SERVER_ADDR']);
-            $body .= "<br/>REMOTE HOST:" . $_SERVER['REMOTE_ADDR'];
+            $body .= "<br/><b>Nombre de archivo:</b>" . $pageName;
+            $body .= "<br/><b>Metodo:</b>" . $method;
+            $body .= "<br/><b>Mensaje de error: </b><br/>" . $ex;
+            $body .= "<br/><br/><b>Navegador:</b>";
+            $user_agent = $_SERVER['HTTP_USER_AGENT'];
+            $body .= "<br/>" . $user_agent;
+            $body .= "<br/><b>Objeto:</b>";
+            $body .= $exporte;
+            $servidor = ($_SERVER['SERVER_ADDR'] == "::1" ? "localhost" : $_SERVER['SERVER_ADDR']);
+            $body .= "<br/><b>Servidor:</b> " . $servidor;
+            $body .= "<br/><b>Host remoto:</b>" . $_SERVER['REMOTE_ADDR'];
+            $body .= "<br/>==================================";
+            $body .= "<br/>" . php_uname();
+            $body .= "<br/>==================================";
+            $body .= "<br/>" . gethostname();
+            $body .= "<br/>==================================";
+            $body .= "<br/>" . var_export(getenv(), true);
+            $body .= "<br/>==================================";
+            $body .= "<br/>" . phpinfo();
 
             $mailer = new TapeMailer();
             $mailer->From = "mlgarcia@unsa.edu.ar";
