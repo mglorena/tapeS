@@ -1,36 +1,39 @@
 <?php
 
 /*
-  miCalendario, manejador de eventos
-  Copyright © Jesus Liñan www.ribosomatic.com
+miCalendario, manejador de eventos
+Copyright © Jesus Liñan www.ribosomatic.com
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 require_once 'class/ctipovehiculo.php';
 
-class calendario {
+class calendario
+{
 
-    var $nombre_dias = array('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo');
+    public $nombre_dias = array('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo');
 
-    function calendario() {
-        
+    public function calendario()
+    {
+
     }
 
-    function mostrarBarra() {
+    public function mostrarBarra()
+    {
 
         $barra = "
-        
-        <div id=\"barcal\">
+
+        <div id=\"barcal\" style=\"width:1024px\">
             <div style=\"padding:5px;\">
                 Mes: <select id=\"ddlMes\" >
                     <option value=\"1\">Enero</option>
@@ -46,7 +49,7 @@ class calendario {
                     <option value=\"11\">Noviembre</option>
                     <option value=\"12\">Diciembre</option>
                 </select>
-                Año: 
+                Año:
                 <select id=\"ddlAnio\" >
                     <option value=\"2017\">2017</option>
                     <option value=\"2018\">2018</option>
@@ -60,13 +63,14 @@ class calendario {
                 </select>
                 Tipo Vehiculo:";
         $ve = new TipoVehiculo();
-        $barra .=$ve->GetDropDown();
-        $barra .="&nbsp;&nbsp;&nbsp;&nbsp;<input type='button' value='Ver >>' onclick='GetCalendar();'/> </div>";
+        $barra .= $ve->GetDropDown();
+        $barra .= "&nbsp;&nbsp;&nbsp;&nbsp;<input type='button' value='Ver >>' onclick='GetCalendar();'/> </div>";
 
         return $barra;
     }
 
-    function PrintCalendar($month, $year) {
+    public function PrintCalendar($month, $year)
+    {
 
         $html = "";
 
@@ -80,18 +84,17 @@ class calendario {
         # Obtenemos el ultimo dia del mes
         $ultimoDiaMes = date("d", (mktime(0, 0, 0, $month + 1, 1, $year) - 1));
 
-
-        $meses = array(1 => "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
-            "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
+        // $meses = array(1 => "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+        //   "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
 
         $html = "";
-        $html.="<table id=\"minical\" cellpadding=\"0\" cellspacing=\"0\" ><thead><tr >";
+        $html .= "<table id=\"minical\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" ><thead><tr >";
         // $html.="<caption>" . $meses[$month] . " " . $year . "</caption>";
         // $html.="<tr style=\"vertical-align:top\" >";
-        $html.="<th>Lun</th><th>Mar</th><th>Mie</th><th>Jue</th>";
-        $html.="<th>Vie</th><th>Sab</th><th>Dom</th>";
-        $html.="</tr></thead><tbody>";
-        $html.="<tr bgcolor=\"silver\" id='firtstr'> ";
+        $html .= "<th>Lun</th><th>Mar</th><th>Mie</th><th>Jue</th>";
+        $html .= "<th>Vie</th><th>Sab</th><th>Dom</th>";
+        $html .= "</tr></thead><tbody>";
+        $html .= "<tr bgcolor=\"silver\" id='firtstr'> ";
 
         $last_cell = $diaSemana + $ultimoDiaMes;
         // hacemos un bucle hasta 42, que es el máximo de valores que puede
@@ -105,30 +108,28 @@ class calendario {
             }
             if ($i < $diaSemana || $i >= $last_cell) {
                 // celca vacia
-                $html.="<td  style=\"vertical-align:top\"  class=\"disabled\">&nbsp;</td>";
+                $html .= "<td  style=\"vertical-align:top\"  class=\"disabled\">&nbsp;</td>";
             } else {
                 // mostramos el dia
 
-                $html.="<td  style=\"vertical-align:top\"  id=\"c" . $day . "\" >";
-                $html.= "<div  class=\"headbox\" style=\"vertical-align:top\"  id=\"d" . $day . "\"> \n";
-                $html.= $day;
-                $html.= "</div> \n";
-                $html.="</td>";
+                $html .= "<td  style=\"vertical-align:top\"  id=\"c" . $day . "\" >";
+                $html .= "<div  class=\"headbox\" style=\"vertical-align:top\"  id=\"d" . $day . "\"> \n";
+                $html .= $day;
+                $html .= "</div> \n";
+                $html .= "</td>";
 
                 $day++;
             }
             // cuando llega al final de la semana, iniciamos una columna nueva
             if ($i % 7 == 0) {
-                $html.="</tr><tr>\n";
+                $html .= "</tr><tr>\n";
             }
         }
 
-        $html.="</tr>";
-        $html.= "</tbody>";
-        $html.="</table>";
+        $html .= "</tr>";
+        $html .= "</tbody>";
+        $html .= "</table>";
         return $html;
     }
 
 }
-
-?>

@@ -42,7 +42,7 @@ function GridPanel(store, tve)
         data: anios
     });
 
-    var meses = [[1, 'Enero'], [2, 'Febrero'], [3, 'Marzo'], [4, 'Abril'], [5, 'Mayo'], [6, 'Junio'], [7, 'Julio'], [8, 'Agosto'], [9, 'Septiembre'], [10, 'Octubre'], [11, 'Noviembre'], [12, 'Diciembre']];
+    var meses =arrayMeses();
 
     var stmes = new Ext.data.ArrayStore({
         fields: ['id', 'mes'],
@@ -281,10 +281,7 @@ function LoadReservas_callback(response)
             extend: 'Ext.data.Model',
             fields: ['ReservaId', 'Destino', 'Solicitante', 'EmailSolicitante', 'AutorizadoPor', 'Tipo', 'Vehiculo', 'VehiculoId', 'ChoferesIds',
                 'Estado', 'FechaInicio', 'FechaFin', 'HoraSalida', 'HoraLlegada', 'Periodo', 'Distancia', 'NumPasajeros', 'ChoferName', 'Observacion', 'FileName',
-                {
-                    name: 'GastoTotal',
-                    type: 'usMoney'
-                }]
+               'GastoTotal']
         });
 
 
@@ -295,23 +292,9 @@ function LoadReservas_callback(response)
             remoteSort: true,
             model: 'Reserva',
             proxy: {
-                type: 'memory'/*,
-                 simpleSortMode: true*/
+                type: 'memory'
             },
-            data: data/*,
-             sorters: [{
-             property: 'Modelo',
-             direction: 'ASC'
-             }],
-             totalProperty : 8,
-             autoLoad  : {
-             params:
-             
-             {
-             start:0, 
-             limit:4
-             }
-             }*/
+            data: data
         });
         var grid = GridPanel(store, tve);
     });

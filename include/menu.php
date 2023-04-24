@@ -72,18 +72,18 @@ echo '</script>';
                     rsub.push({text: 'Cargar/Editar', url: 'auto/reservas.php', stateId: '13', handler: oUrlClick});
                 if (jQuery.inArray("23", rules) !== -1)
                 {
-                    rsub.push({text: 'Reporte',
+                    /*rsub.push({text: 'Reporte',
                         url: 'auto/reservasrep.php',
                         stateId: '23',
-                        handler: oUrlClick});
+                        handler: oUrlClick});*/
                     rsub.push({text: 'Reporte por Vehiculo',
                         url: 'auto/reservasrepv.php',
                         stateId: '23',
                         handler: oUrlClick});
-                    rsub.push({text: 'Reporte por Vehiculo Disponibilidad',
+                   /* rsub.push({text: 'Reporte por Vehiculo Disponibilidad',
                         url: 'auto/reservasrepv2.php',
                         stateId: '23',
-                        handler: oUrlClick});
+                        handler: oUrlClick});*/
                 }
             }
             rsub.push({text: 'Calendario',
