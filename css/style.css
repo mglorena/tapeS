@@ -141,7 +141,7 @@ tr.listitemeven td {
   font-size: 12px;
   padding-top: 5px;
   padding-bottom: 5px;
-  @charset "utf-8";
+  /*@charset "utf-8";*/
 }
 
 tr.listitemeven td.borderright {
@@ -165,7 +165,7 @@ tr.listitemuneven td {
   font-size: 12px;
   padding-top: 5px;
   padding-bottom: 5px;
-  @charset "utf-8";
+  /*@charset "utf-8";*/
 }
 
 tr.listitemuneven td.borderright {
@@ -600,7 +600,7 @@ ul.menu .topline {
 
 .smoke-base {
   background: rgba(0, 0, 0, 0.3);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#90000000,endColorstr=#900000000);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#90000000,endColorstr=#90000000);
 }
 
 .smoke-base .dialog {
@@ -635,7 +635,7 @@ button.cancel {
 .queue {
   display: none;
 }
-/**CALENDAR**/
+/**CALENDAR
 //@charset "utf-8";
 /* CSS Document */
 /**{
