@@ -39,7 +39,7 @@ function GridPanel(store)
             data: meses
         });
 
-        var anios = [[2020, '2020'], [2021, '2021'], [2022, '2022'], [2023, '2023']];
+        var  anios = arrayAnios();
         var stanio = new Ext.data.ArrayStore({
             fields: ['id', 'anio'],
             data: anios

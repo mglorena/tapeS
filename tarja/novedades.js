@@ -28,17 +28,7 @@ function LoadCalendar_callback(response) {
         data: emp,
       });
 
-      var anios = [
-        [2020, "2020"],
-        [2021, "2021"],
-        [2022, "2022"],
-        [2023, "2023"],
-        [2024, "2024"],
-        [2025, "2025"],
-        [2026, "2026"],
-        [2027, "2027"],
-        [2028, "2028"],
-      ];
+      var anios = arrayAnios();
 
       var stanio = new Ext.data.ArrayStore({
         fields: ["id", "anio"],

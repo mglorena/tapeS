@@ -20,6 +20,7 @@ $.getJSON('./resoluciones.json', function (data) {
   html += '</table>'
 })
 function reemplazar () {
+ 
   let i = $('div i')
 
   // Clona el elemento <ol>

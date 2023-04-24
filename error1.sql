@@ -174,3 +174,10 @@ Metodo: execute
 Objeto: 'call vehiculos_update(NULL,\'Chevrolet S10\',\'AC730PH\',
             \'1\',\'Chevrolet S10\',\'Chevrolet S10\',\'Chevrolet S10\',
             \'Chevrolet S10\',\'Chevrolet S10\',Chevrolet S10,Chevrolet S10,0);'
+==================================
+Error: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'S10,Chevrolet S10,0)' at line 3
+Pagina: csqlprovider.php
+Metodo: execute
+Objeto: 'call vehiculos_update(NULL,\'Chevrolet S10\',\'AC730PH\',
+            \'1\',\'Chevrolet S10\',\'Chevrolet S10\',\'Chevrolet S10\',
+            \'Chevrolet S10\',\'Chevrolet S10\',Chevrolet S10,Chevrolet S10,0);'

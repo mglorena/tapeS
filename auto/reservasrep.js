@@ -35,7 +35,7 @@ function GridPanel(store, tve)
 {
     // create the grid and specify what field you want
     // to use for the editor at each column.
-    var anios = [[2020, '2020'], [2021, '2021'], [2022, '2022'], [2023, '2023'], [2024, '2024']];
+    var anios = arrayAnios();
 
     var stanio = new Ext.data.ArrayStore({
         fields: ['id', 'anio'],

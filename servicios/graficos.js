@@ -65,8 +65,8 @@ function LoadServicios_callback(response)
     tsluz = ObjToArray(response[5]);
     tsgas = ObjToArray(response[6]);
 
-console.log(luz);
-    var anios = [[2011, '2011'],[2012, '2012'], [2013, '2013'], [2014, '2014'], [2015, '2015'], [2016, '2016'], [2017, '2017'], [2018, '2018'], [2019, '2019'], [2020, '2020']];
+
+    var anios = arrayAnios();
 
     var stanio = new Ext.data.ArrayStore({
         fields: ['id', 'anio'],

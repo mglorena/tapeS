@@ -569,7 +569,7 @@ function GridPanel(store)
         fields: ['id', 'mes'],
         data: meses
     });
-    var anios = [[2012, '2012'], [2013, '2013'], [2014, '2014']];
+    var anios = arrayAnios();
 
     var stanio = new Ext.data.ArrayStore({
         fields: ['id', 'anio'],
