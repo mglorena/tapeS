@@ -370,19 +370,7 @@ function GridPanel(store, tve, tcmb)
                 header: 'Acciones',
                 align: 'center',
                 width: 70,
-                items: [{
-                        icon: '../images/icons/fam/delete.gif', // Use a URL in the icon config
-                        tooltip: 'Borrar',
-                        align: 'center',
-                        altText: 'Borrar',
-                        cls: 'x-icon-action',
-                        handler: function(grid, rowIndex, colIndex) {
-                            if (hasUpdate) {
-                                var record = grid.store.getAt(rowIndex);
-                                DeleteVehiculo(record, grid);
-                            }
-                        }
-                    }, {
+                items: [ {
                         icon: '../images/icons/update16x16.png',
                         tooltip: 'Actualizar KM',
                         align: 'center',
@@ -409,6 +397,18 @@ function GridPanel(store, tve, tcmb)
 
                         }
 
+                    },{
+                        icon: '../images/icons/fam/delete.gif', // Use a URL in the icon config
+                        tooltip: 'Borrar',
+                        align: 'center',
+                        altText: 'Borrar',
+                        cls: 'x-icon-action',
+                        handler: function(grid, rowIndex, colIndex) {
+                            if (hasUpdate) {
+                                var record = grid.store.getAt(rowIndex);
+                                DeleteVehiculo(record, grid);
+                            }
+                        }
                     }]
             }
         ],
