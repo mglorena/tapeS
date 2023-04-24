@@ -76,15 +76,21 @@ class sqlprovider
 
     public function ListArray()
     {
-        if (!($cur = $this->execute())) {
+        try {
+            if (!($cur = $this->execute())) {
 
-            return null;
+                return null;
+            }
+            $array = array();
+            while ($row = @mysqli_fetch_array($cur)) {
+                $array[] = $row;
+            }
+            return $array;
+        } catch (\Throwable$th) {
+            $error = new Errors();
+            $error->SendMysqlErrorMessage(mysqli_error($this->conexion), "csqlprovider.php", "ListArray", $cur);
         }
-        $array = array();
-        while ($row = @mysqli_fetch_array($cur)) {
-            $array[] = $row;
-        }
-        return $array;
+
     }
 
     public function ListObject()

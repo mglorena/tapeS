@@ -1,19 +1,14 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+require_once '/var/www/html/tape/class/cerrors.php';
+require_once '/var/www/html/tape/class/cconf.php';
 
-/**
- * Description of cutil
- *
- * @author root
- */
-class Util {
+class Util
+{
 
     //put your code here
-    function strinformatdate($date) {
+    public function strinformatdate($date)
+    {
 
         if (!empty($date)) {
             $var = explode('/', str_replace('-', '/', $date));
@@ -21,30 +16,46 @@ class Util {
         }
     }
 
-    function BorrarDirectorio($dir) {
-        if (!is_dir($dir))
-            throw new NoDirectoryException("$dir::No es un directorio");
+    public function BorrarDirectorio($dir)
+    {
+        try {
+            if (!file_exists($dir) || !is_dir($dir)) {
+                //throw new Exception("$dir no existe o no es un directorio");
+                return true;
+            }
 
-        if (!($open = opendir($dir)))
-            throw new NoOpenException("$dir::No se puede abrir");
+            if (!($open = opendir($dir))) {
+                //throw new Exception("No se puede abrir el directorio $dir");
+                return true;
+            }
 
-        while ($file = readdir($open)) {
-            if ($file == "." || $file == "..")
-                continue;
-            if (is_dir("$dir/$file"))
-                borrar_directorio("$dir/$file");
-            else
-            if (!unlink("$dir/$file"))
-                throw new UnlinkException("$dir/$file::No se pudo borrar el archivo");
+            while ($file = readdir($open)) {
+                if ($file == "." || $file == "..") {
+                    continue;
+                }
+
+                if (is_dir("$dir/$file")) {
+                    borrar_directorio("$dir/$file");
+                } else
+                if (!unlink("$dir/$file")) {
+                    //throw new UnlinkException("$dir/$file::No se pudo borrar el archivo");
+                    return true;
+                }
+
+            }
+            closedir($open);
+
+            if (!rmdir($dir)) {
+                //throw new NoDeleteException("$dir::No ha podido ser borrado");
+                return true;
+            }
+
+            return true;
+        } catch (\Throwable$th) {
+            $error = new Errors();
+            $error->SendMysqlErrorMessage($th, "cutil.php", "BorrarDirectorio", $dir);
         }
-        closedir($open);
 
-        if (!rmdir($dir))
-            throw new NoDeleteException("$dir::No ha podido ser borrado");
-
-        return true;
     }
 
 }
-
-?>

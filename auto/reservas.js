@@ -1,9 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/****************/
 var CurrentObject
 var date = new Date()
 var dia = 0
@@ -11,14 +5,16 @@ var mes = date.getMonth() + 1
 var anio = date.getFullYear()
 var mesNom = date.toLocaleString()
 var tvehiculoId = 0, estado = 0
-x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
-var estados = [[0, 'Todos'], [1, 'Pendiente'], [2, 'Confirmada'], [3, 'Suspendida'], [4, 'Realizada']]
+var estados = [[0, 'Todos'],[1, 'Pendiente'], [2, 'Confirmada'], [3, 'Suspendida'], [4, 'Realizada']]
 var stestados = new Ext.data.ArrayStore({
   fields: ['Id', 'Estado'],
   data: estados
 })
 
 var grid, ridx, ac, ve, ch
+x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback);
+
+var gridid;
 
 var msg = function (title, msg) {
   Ext.Msg.show({
@@ -31,6 +27,341 @@ var msg = function (title, msg) {
   })
 }
 
+function LoadModel() {
+  Ext.define('Reserva', {
+    extend: 'Ext.data.Model',
+    fields: ['ReservaId', 'Destino', 'Solicitante', 'EmailSolicitante', 'AutorizadoPor', 'Tipo', 'Vehiculo', 'VehiculoId', 'ChoferesIds',
+      'Estado', 'FechaInicio', 'FechaFin', 'HoraSalida', 'HoraLlegada', 'Periodo', 'Distancia', 'NumPasajeros', 'ChoferName', 'Observacion', 'FileName',
+       'GastoTotal']
+  })
+}
+function LoadStore(data) {
+  var store = Ext.create('Ext.data.Store', {
+    autoDestroy: true,
+    pageSize: 10,
+    remoteSort: true,
+    model: 'Reserva',
+    proxy: {
+      type: 'memory' 
+    },
+    data: data
+  })
+  return store;
+}
+function LoadGridOnly_callback(response) {
+  try {
+    data = ObjToArray(response[1]);
+    store = LoadStore(data);
+    grid = Ext.getCmp(gridid);
+    var store = grid.getStore();
+    store.setData(data);
+    var view = grid.getView();
+    view.refresh();
+  } catch (e) {
+    SendJsError(e, "LoadGridOnly_callback - reservas.js", response);
+  }
+}
+function LoadReservas_callback (response) {
+  var data
+  try {
+    $('#tblReservas').html('')
+    data = ObjToArray(response[1])
+    var tve = ObjToArray(response[2])
+    ve = ObjToArray(response[3])
+    ch = ObjToArray(response[4]);
+    
+    Ext.onReady(function () {
+     LoadModel();
+     store = LoadStore(data);    
+    grid = GridPanel(store, tve)
+    gridid = grid.id;
+    grid.show();
+    })
+  } catch (e) {
+    SendJsError(e, 'LoadReservas_callback - reservas.js', data)
+  }
+}
+function GridPanel (store, tve) {
+  var anios
+  try {
+    anios = arrayAnios();
+
+    var stanio = new Ext.data.ArrayStore({
+      fields: ['id', 'anio'],
+      data: anios
+    })
+
+    var meses = [[1, 'Enero'], [2, 'Febrero'], [3, 'Marzo'], [4, 'Abril'], [5, 'Mayo'], [6, 'Junio'], [7, 'Julio'], [8, 'Agosto'], [9, 'Septiembre'], [10, 'Octubre'], [11, 'Noviembre'], [12, 'Diciembre']]
+
+    var stmes = new Ext.data.ArrayStore({
+      fields: ['id', 'mes'],
+      data: meses
+    })
+
+    var a = [0, 'Todos']
+    tve.push(a)
+    var sttve = new Ext.data.ArrayStore({
+      fields: ['TipoVehiculoId', 'Nombre'],
+      data: tve
+    })
+    //Ext.tip.QuickTipManager.init()
+    var win
+    grid = Ext.create('Ext.grid.Panel', {
+      store: store,
+      columns: [{
+        header: 'Solicitante',
+        dataIndex: 'Solicitante',
+        flex: 1
+      },
+        {
+          header: 'Destino',
+          dataIndex: 'Destino',
+          flex: 1
+        },
+        {
+          header: 'Vehiculo',
+          dataIndex: 'Vehiculo',
+          flex: 1
+        },
+        {
+          header: 'Periodo',
+          dataIndex: 'Periodo',
+          flex: 1
+        },
+        {
+          header: 'Choferes',
+          dataIndex: 'ChoferName',
+          flex: 1
+        },
+        {
+          header: 'Estado',
+          dataIndex: 'Estado',
+          align: 'center',
+          renderer: function (value) {
+            if (value === 'Pendiente')
+              return '<font color=red>' + value + '</font>'
+            else if (value === 'Confirmada')
+              return '<font color=green>' + value + '</font>'
+            else if (value === 'Realizada')
+              return '<font color=navy>' + value + '</font>'
+            else
+              return value
+          }
+
+        },
+        {
+          header: 'Costo Aprox',
+          dataIndex: 'GastoTotal',
+          align: 'center',
+          renderer: 'usMoney'
+
+        }, {
+          menuDisabled: true,
+          sortable: false,
+          xtype: 'actioncolumn',
+          header: 'Acciones',
+          align: 'center',
+          width: 90,
+          items: [{
+            icon: '../images/icons/fam/delete.gif', // Use a URL in the icon config
+            tooltip: 'Borrar',
+            align: 'center',
+            altText: 'Borrar',
+            cls: 'x-icon-action',
+            handler: function (grid, rowIndex, colIndex) {
+              
+              if (hasUpdate) {
+                var record = grid.store.getAt(rowIndex)
+                DeleteReserva(record, grid, rowIndex);
+              }
+            }
+          }, {
+            icon: '../images/icons/money.png',
+            tooltip: 'Calcular Costo',
+            align: 'center',
+            altText: 'Calcular Costo',
+            handler: function (grid, rowIndex, colIndex) {
+              if (hasUpdate) {
+                var record = grid.store.getAt(rowIndex)
+                var win = PopinCosto(record)
+                win.show()
+                ridx = rowIndex
+                x_InfoPresupuesto((record ? record.data['ReservaId'] : null), InfoPresupuesto_callback)
+              }
+            }
+          }, {
+            icon: '../images/icons/fam/file.gif',
+            tooltip: 'Adjuntar Archivo',
+            align: 'center',
+            altText: 'Adjuntar archivo',
+            handler: function (grid, rowIndex, colIndex) {
+              if (hasUpdate) {
+                var record = grid.store.getAt(rowIndex)
+                var win = PopinUpload((record ? record.data['ReservaId'] : null))
+                win.show()
+                ridx = rowIndex
+              }
+            }
+          }
+            , {
+              icon: '../images/icons/edit16x16.png',
+              tooltip: 'Editar',
+              align: 'center',
+              altText: 'Editar',
+              handler: function (grid, rowIndex, colIndex) {
+                var record = grid.store.getAt(rowIndex)
+                if (hasUpdate) {
+                  var win = PopinReserva('edit', record)
+                  win.show()
+                  ridx = rowIndex
+                  GetChVe('')
+                }
+              }
+
+            }]
+        }
+      ],
+      renderTo: 'tblReservas',
+      width: '100%',
+      height: '77%',
+      // stripeRows: true,
+      title: 'Reservas - Automotores UNSa',
+      frame: true,
+      tbar: [{
+        xtype: 'datefield',
+        fieldLabel: 'Dia',
+        labelWidth: 30,
+        id: 'txtDia',
+        mode: 'local',
+        submitFormat: 'YYYY-mm-dd H:i:m',
+        value: dia,
+        width: 125,
+        listeners: {
+          'change': function (txt, record, idx) {
+            dia = txt.value
+            if (dia)
+              dia = dia.f('yyyy-MM-dd')
+              x_LoadGridOnly(dia, mes, anio, tvehiculoId, estado, LoadGridOnly_callback)
+          }
+        }
+
+      }
+        , {
+          xtype: 'combo',
+          fieldLabel: 'Mes',
+          labelWidth: 30,
+          store: stmes,
+          id: 'ddlMes',
+          valueField: 'id',
+          displayField: 'mes',
+          typeAhead: true,
+          mode: 'local',
+          // forceSelection: true,
+          value: mes,
+          width: 150,
+          emptyText: '......',
+          listeners: {
+            'select': function (combo, record, idx) {
+              mes = combo.value
+              x_LoadGridOnly(dia, mes, anio, tvehiculoId, estado, LoadGridOnly_callback)
+            }
+          }
+
+        }
+        , {
+          xtype: 'combo',
+          fieldLabel: 'Año',
+          labelWidth: 30,
+          store: stanio,
+          id: 'ddlAnio',
+          valueField: 'id',
+          displayField: 'anio',
+          typeAhead: true,
+          mode: 'local',
+          // forceSelection: true,
+          value: anio,
+          width: 120,
+          emptyText: '......',
+          listeners: {
+            'select': function (combo, record, idx) {
+              anio = combo.value
+              x_LoadGridOnly(dia, mes, anio, tvehiculoId, estado, LoadGridOnly_callback)
+            }
+          }
+
+        }, {
+          xtype: 'combo',
+          fieldLabel: 'Estado',
+          labelWidth: 50,
+          store: stestados,
+          id: 'ddlEstado',
+          valueField: 'Id',
+          displayField: 'Estado',
+          typeAhead: true,
+          mode: 'local',
+          // forceSelection: true,
+          value: estado,
+          width: 150,
+          emptyText: '......',
+          listeners: {
+            'select': function (combo, record, idx) {
+              estado = combo.value
+              x_LoadGridOnly(dia, mes, anio, tvehiculoId, estado, LoadGridOnly_callback)
+            }
+          }
+        }, {
+          xtype: 'combo',
+          fieldLabel: 'Tipo vehículo',
+          labelWidth: 90,
+          store: sttve,
+          id: 'ddlTipoVehiculo',
+          valueField: 'TipoVehiculoId',
+          displayField: 'Nombre',
+          typeAhead: true,
+          mode: 'local',
+          // forceSelection: true,
+          value: tvehiculoId,
+          width: 220,
+          emptyText: '......',
+          listeners: {
+            'select': function (combo, record, idx) {
+              tvehiculoId = combo.value
+              x_LoadGridOnly(dia, mes, anio, tvehiculoId, estado, LoadGridOnly_callback)
+            }
+          }
+        }, {
+          text: 'Agregar Reserva',
+          iconCls: 'icon-add',
+          handler: function () {
+            if (hasInsert) {
+              var record = null
+              var win = PopinReserva('add', record)
+              win.show()
+            }
+          }
+        },
+        {
+          text: 'Print',
+          iconCls: 'icon-print',
+          handler: function () {
+            var mesn = Ext.getCmp('ddlMes')
+            var mesn = mesn.rawValue
+            var anio = Ext.getCmp('ddlAnio').getValue()
+            Ext.ux.grid.Printer.mainTitle = 'Lista de Reservas <br/> Mes: ' + mesn + '    Año : ' + anio
+            Ext.ux.grid.Printer.headerText = 'Universidad Nacional de Salta <br/> Dirección General de Obras y Servicios'
+            Ext.ux.grid.Printer.printLinkText = 'Imprimir'
+            Ext.ux.grid.Printer.closeLinkText = 'Cerrar'
+            Ext.ux.grid.Printer.printAutomatically = false
+            Ext.ux.grid.Printer.print(grid)
+          }
+        }
+      ] 
+    })
+    return grid
+  } catch (e) {
+    SendJsError(e, 'PopinReserva - reservas.js', anios)
+  }
+}
 function GetChVe (evt) {
   try {
     ac = evt
@@ -41,18 +372,22 @@ function GetChVe (evt) {
     if (fInicio !== null && fFin !== null && nPas !== '') {
       if (reId === '')
         reId = 0
+    
       x_GetDisponibles(fInicio.f('yyyy-MM-dd'), fFin.f('yyyy-MM-dd'), nPas, reId, GetDisponibles_callback)
     }
   } catch (e) {
     SendJsError(e, 'GetChVe - reservas.js', evt)
+    
   }
 }
 
 function GetDisponibles_callback (response) {
   try {
-    var record = grid.store.getAt(ridx)
+    
+    var record;
     var cmbCh = Ext.getCmp('ddlChoferes')
     var cmbVe = Ext.getCmp('ddlVehiculos')
+    
     var ve = ObjToArray(response[1])
     var stvehiculos = new Ext.data.ArrayStore({
       fields: ['VehiculoId', 'Modelo'],
@@ -61,11 +396,6 @@ function GetDisponibles_callback (response) {
     cmbVe.store = stvehiculos
     cmbVe.bindStore(stvehiculos)
     cmbVe.store.reload()
-
-    if (ac === '')
-      cmbVe.setValue(record ? record.data['VehiculoId'] : null)
-    else
-      cmbVe.setValue(null)
 
     var ch = ObjToArray(response[2])
 
@@ -82,9 +412,18 @@ function GetDisponibles_callback (response) {
     cmbCh.store.reload()
 
     if (ac === '')
-      cmbCh.setValue(choferes)
+    {
+      record =(ridx ?  grid.store.getAt(ridx): null);
+      cmbVe.setValue(record ? record.data['VehiculoId'] : null);
+      cmbCh.setValue(choferes);
+    }
     else
-      cmbCh.setValue('')
+    {
+      cmbVe.setValue(null)
+      cmbCh.setValue(null)
+    }
+    
+      
   } catch (e) {
     SendJsError(e, 'GetDisponibles_callback - reservas.js', response)
   }
@@ -95,6 +434,7 @@ function FormField (record) {
   try {
     var es = estados.slice()
     es.shift()
+    
     var stestados = new Ext.data.ArrayStore({
       fields: ['Id', 'Estado'],
       data: es
@@ -116,6 +456,9 @@ function FormField (record) {
       var dest = record.data['Destino']
       var url1 = 'https://maps.google.com/maps?saddr=Salta,+Argentina&daddr=' + dest + ',+Argentina'
       link = "<a href='" + url1 + "' target='_blank'>Google Maps.</a>"
+    }
+    else{
+        es = 1;
     }
 
     var required = '<span style="color:red;font-weight:bold" data-qtip="Requerido">*</span>'
@@ -140,7 +483,8 @@ function FormField (record) {
         allowBlank: false,
         listeners: {
           'change': function () {
-            GetChVe('fs')
+            GetChVe('fs');
+            
           }
         }
       },
@@ -156,7 +500,8 @@ function FormField (record) {
         allowBlank: false,
         listeners: {
           'change': function () {
-            GetChVe('fl')
+            GetChVe('fl');
+           
           }
         }
       },
@@ -185,7 +530,7 @@ function FormField (record) {
         value: (record ? record.data['NumPasajeros'] : null),
         afterLabelTextTpl: required,
         allowBlank: false,
-        width: 130,
+        width: 160,
         listeners: {
           'blur': function () {
             GetChVe('pas')
@@ -222,7 +567,7 @@ function FormField (record) {
         xtype: 'numberfield',
         name: 'Distancia',
         value: (record ? record.data['Distancia'] : null),
-        width: 160
+        width: 210
       },
       {
         fieldLabel: 'Solicitante',
@@ -1059,18 +1404,19 @@ function PopinReserva (action, record) {
 
     var win = Ext.create('Ext.window.Window', {
       title: title,
-      bodyStyle: 'padding: 5px',
-      width: 540,
+      bodyStyle: "padding: 15px;border:none;",
+      width: '35%',
       closable: true,
-      layout: 'fit',
-      modal: true,
+      //layout: 'fit',
+      //modal: true,
       items: {
         xtype: 'form',
-        frame: true,
+        //frame: true,
         defaultType: 'textfield',
-        overflowY: 'auto',
+        //overflowY: 'auto',
         url: 'file-upload.php',
         fileUpload: true,
+        bodyStyle: "padding: 15px;border:none;",
         items: formFields,
         method: 'post',
         buttons: [
@@ -1094,7 +1440,7 @@ function PopinReserva (action, record) {
 
         ],
         listeners: {
-          afterrender: function () {
+         /* afterrender: function () {
             var that = this
             setTimeout(function () {
               that.items.first().focus()
@@ -1106,7 +1452,7 @@ function PopinReserva (action, record) {
               },
               scope: this
             })
-          }
+          }*/
         }
       }
     })
@@ -1116,327 +1462,7 @@ function PopinReserva (action, record) {
     SendJsError(e, 'PopinReserva - reservas.js', action)
   }
 }
-function LoadModel() {
-  Ext.define('Reserva', {
-    extend: 'Ext.data.Model',
-    fields: ['ReservaId', 'Destino', 'Solicitante', 'EmailSolicitante', 'AutorizadoPor', 'Tipo', 'Vehiculo', 'VehiculoId', 'ChoferesIds',
-      'Estado', 'FechaInicio', 'FechaFin', 'HoraSalida', 'HoraLlegada', 'Periodo', 'Distancia', 'NumPasajeros', 'ChoferName', 'Observacion', 'FileName',
-       'GastoTotal']
-  })
-}
-function LoadStore(data) {
-  var store = Ext.create('Ext.data.Store', {
-    autoDestroy: true,
-    pageSize: 10,
-    remoteSort: true,
-    model: 'Reserva',
-    proxy: {
-      type: 'memory' 
-    },
-    data: data
-  })
-  return store;
-}
-function LoadReservas_callback (response) {
-  var data
-  try {
-    $('#tblReservas').html('')
-    data = ObjToArray(response[1])
-    var tve = ObjToArray(response[2])
-    ve = ObjToArray(response[3])
-    ch = ObjToArray(response[4]);
-    
-    Ext.onReady(function () {
-     LoadModel();
-     store = LoadStore(data);    
-    grid = GridPanel(store, tve)
-    gridid = grid.id;
-    grid.show();
-    })
-  } catch (e) {
-    SendJsError(e, 'LoadReservas_callback - reservas.js', data)
-  }
-}
-function GridPanel (store, tve) {
-  var anios
-  try {
-    anios = arrayAnios();
 
-    var stanio = new Ext.data.ArrayStore({
-      fields: ['id', 'anio'],
-      data: anios
-    })
-
-    var meses = [[1, 'Enero'], [2, 'Febrero'], [3, 'Marzo'], [4, 'Abril'], [5, 'Mayo'], [6, 'Junio'], [7, 'Julio'], [8, 'Agosto'], [9, 'Septiembre'], [10, 'Octubre'], [11, 'Noviembre'], [12, 'Diciembre']]
-
-    var stmes = new Ext.data.ArrayStore({
-      fields: ['id', 'mes'],
-      data: meses
-    })
-
-    var a = [0, 'Todos']
-    tve.push(a)
-    var sttve = new Ext.data.ArrayStore({
-      fields: ['TipoVehiculoId', 'Nombre'],
-      data: tve
-    })
-    //Ext.tip.QuickTipManager.init()
-    var win
-    grid = Ext.create('Ext.grid.Panel', {
-      store: store,
-      columns: [{
-        header: 'Solicitante',
-        dataIndex: 'Solicitante',
-        flex: 1
-      },
-        {
-          header: 'Destino',
-          dataIndex: 'Destino',
-          flex: 1
-        },
-        {
-          header: 'Vehiculo',
-          dataIndex: 'Vehiculo',
-          flex: 1
-        },
-        {
-          header: 'Periodo',
-          dataIndex: 'Periodo',
-          flex: 1
-        },
-        {
-          header: 'Choferes',
-          dataIndex: 'ChoferName',
-          flex: 1
-        },
-        {
-          header: 'Estado',
-          dataIndex: 'Estado',
-          align: 'center',
-          renderer: function (value) {
-            if (value === 'Pendiente')
-              return '<font color=red>' + value + '</font>'
-            else if (value === 'Confirmada')
-              return '<font color=green>' + value + '</font>'
-            else if (value === 'Realizada')
-              return '<font color=navy>' + value + '</font>'
-            else
-              return value
-          }
-
-        },
-        {
-          header: 'Costo Aprox',
-          dataIndex: 'GastoTotal',
-          align: 'center',
-          renderer: 'usMoney'
-
-        }, {
-          menuDisabled: true,
-          sortable: false,
-          xtype: 'actioncolumn',
-          header: 'Acciones',
-          align: 'center',
-          width: 90,
-          items: [{
-            icon: '../images/icons/fam/delete.gif', // Use a URL in the icon config
-            tooltip: 'Borrar',
-            align: 'center',
-            altText: 'Borrar',
-            cls: 'x-icon-action',
-            handler: function (grid, rowIndex, colIndex) {
-              if (hasUpdate) {
-                var record = grid.store.getAt(rowIndex)
-                DeleteReserva(record, grid, rowIndex)
-              }
-            }
-          }, {
-            icon: '../images/icons/money.png',
-            tooltip: 'Calcular Costo',
-            align: 'center',
-            altText: 'Calcular Costo',
-            handler: function (grid, rowIndex, colIndex) {
-              if (hasUpdate) {
-                var record = grid.store.getAt(rowIndex)
-                var win = PopinCosto(record)
-                win.show()
-                ridx = rowIndex
-                x_InfoPresupuesto((record ? record.data['ReservaId'] : null), InfoPresupuesto_callback)
-              }
-            }
-          }, {
-            icon: '../images/icons/fam/file.gif',
-            tooltip: 'Adjuntar Archivo',
-            align: 'center',
-            altText: 'Adjuntar archivo',
-            handler: function (grid, rowIndex, colIndex) {
-              if (hasUpdate) {
-                var record = grid.store.getAt(rowIndex)
-                var win = PopinUpload((record ? record.data['ReservaId'] : null))
-                win.show()
-                ridx = rowIndex
-              }
-            }
-          }
-            , {
-              icon: '../images/icons/edit16x16.png',
-              tooltip: 'Editar',
-              align: 'center',
-              altText: 'Editar',
-              handler: function (grid, rowIndex, colIndex) {
-                var record = grid.store.getAt(rowIndex)
-                if (hasUpdate) {
-                  var win = PopinReserva('edit', record)
-                  win.show()
-                  ridx = rowIndex
-                  GetChVe('')
-                }
-              }
-
-            }]
-        }
-      ],
-      renderTo: 'tblReservas',
-      width: '100%',
-      height: '77%',
-      // stripeRows: true,
-      title: 'Reservas - Automotores UNSa',
-      frame: true,
-      tbar: [{
-        xtype: 'datefield',
-        fieldLabel: 'Dia',
-        labelWidth: 30,
-        id: 'txtDia',
-        mode: 'local',
-        submitFormat: 'YYYY-mm-dd H:i:m',
-        value: dia,
-        width: 125,
-        listeners: {
-          'change': function (txt, record, idx) {
-            dia = txt.value
-            if (dia)
-              dia = dia.f('yyyy-MM-dd')
-            x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
-          }
-        }
-
-      }
-        , {
-          xtype: 'combo',
-          fieldLabel: 'Mes',
-          labelWidth: 30,
-          store: stmes,
-          id: 'ddlMes',
-          valueField: 'id',
-          displayField: 'mes',
-          typeAhead: true,
-          mode: 'local',
-          // forceSelection: true,
-          value: mes,
-          width: 120,
-          emptyText: '......',
-          listeners: {
-            'select': function (combo, record, idx) {
-              mes = combo.value
-              x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
-            }
-          }
-
-        }
-        , {
-          xtype: 'combo',
-          fieldLabel: 'Año',
-          labelWidth: 30,
-          store: stanio,
-          id: 'ddlAnio',
-          valueField: 'id',
-          displayField: 'anio',
-          typeAhead: true,
-          mode: 'local',
-          // forceSelection: true,
-          value: anio,
-          width: 120,
-          emptyText: '......',
-          listeners: {
-            'select': function (combo, record, idx) {
-              anio = combo.value
-              x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
-            }
-          }
-
-        }, {
-          xtype: 'combo',
-          fieldLabel: 'Estado',
-          labelWidth: 50,
-          store: stestados,
-          id: 'ddlEstado',
-          valueField: 'Id',
-          displayField: 'Estado',
-          typeAhead: true,
-          mode: 'local',
-          // forceSelection: true,
-          value: estado,
-          width: 150,
-          emptyText: '......',
-          listeners: {
-            'select': function (combo, record, idx) {
-              estado = combo.value
-              x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
-            }
-          }
-        }, {
-          xtype: 'combo',
-          fieldLabel: 'Tipo vehículo',
-          labelWidth: 90,
-          store: sttve,
-          id: 'ddlTipoVehiculo',
-          valueField: 'TipoVehiculoId',
-          displayField: 'Nombre',
-          typeAhead: true,
-          mode: 'local',
-          // forceSelection: true,
-          value: tvehiculoId,
-          width: 180,
-          emptyText: '......',
-          listeners: {
-            'select': function (combo, record, idx) {
-              tvehiculoId = combo.value
-              x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
-            }
-          }
-        }, {
-          text: 'Agregar Reserva',
-          iconCls: 'icon-add',
-          handler: function () {
-            if (hasInsert) {
-              var record = null
-              var win = PopinReserva('add', record)
-              win.show()
-            }
-          }
-        },
-        {
-          text: 'Print',
-          iconCls: 'icon-print',
-          handler: function () {
-            var mesn = Ext.getCmp('ddlMes')
-            var mesn = mesn.rawValue
-            var anio = Ext.getCmp('ddlAnio').getValue()
-            Ext.ux.grid.Printer.mainTitle = 'Lista de Reservas <br/> Mes: ' + mesn + '    Año : ' + anio
-            Ext.ux.grid.Printer.headerText = 'Universidad Nacional de Salta <br/> Dirección General de Obras y Servicios'
-            Ext.ux.grid.Printer.printLinkText = 'Imprimir'
-            Ext.ux.grid.Printer.closeLinkText = 'Cerrar'
-            Ext.ux.grid.Printer.printAutomatically = false
-            Ext.ux.grid.Printer.print(grid)
-          }
-        }
-      ] 
-    })
-    return grid
-  } catch (e) {
-    SendJsError(e, 'PopinReserva - reservas.js', anios)
-  }
-}
 
 var rowDelete
 function DeleteReserva (record, grid, rowId) {
@@ -1446,15 +1472,17 @@ function DeleteReserva (record, grid, rowId) {
       Ext.Msg.confirm('Eliminar Reserva', 'Esta seguro que quiere eliminar este Reserva?', function (button) {
         if (button === 'yes') {
           var sm = grid.getSelectionModel()
-          if (rowDelete) {
+          
+          if (rowDelete || rowDelete==0) {
+            
             var rec = grid.getSelectionModel().getSelection()[rowDelete]
 
             grid.store.remove(record)
             if (grid.store.getCount() > 0) {
               sm.select(0)
             }
-            var vehiculoId = record.data['ReservaId']
-            x_DeleteReserva(vehiculoId, DeleteReserva_callback)
+            var reservaId = record.data['ReservaId'];
+            x_DeleteReserva(reservaId, DeleteReserva_callback)
             rowDelete = null
           }
         }
@@ -1465,13 +1493,14 @@ function DeleteReserva (record, grid, rowId) {
   }
 }
 function DeleteReserva_callback (response) {
+  
   if (response) {
     humane.success('Se ha eliminado el vehiculo correctamente.')
 
     x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
   }else {
     humane.error('Hubo un error al eliminar el vehiculo.')
-    SendJsError(new Error('Error DeleteReserva-vehiculos.js'), 'vehiculos.js', response)
+    SendJsError(new Error('Error DeleteReserva-reservas.js'), 'reservas.js', response)
   }
 }
 function SaveReserva (form, action) {
@@ -1488,7 +1517,7 @@ function SaveReserva (form, action) {
       rec['ReservaId'] = 0
     rec['UserId'] = user
     var reserva = JSON.stringify(rec)
-    // console.log(reserva)
+    
     x_SaveReserva(reserva, SaveReserva_callback)
   } catch (e) {
     SendJsError(e, 'SaveReserva - reservas.js', rec)
@@ -1496,9 +1525,10 @@ function SaveReserva (form, action) {
 }
 
 function SaveReserva_callback (response) {
+
   if (response) {
     humane.success('Se ha guardado la reserva correctamente.')
-    x_LoadReservas(dia, mes, anio, tvehiculoId, estado, LoadReservas_callback)
+    x_LoadGridOnly(dia, mes, anio, tvehiculoId, estado, LoadGridOnly_callback);
   }else {
     humane.error('Hubo un error al guardar la reserva.')
     SendJsError(new Error('Error SaveReserva-reservas.js'), 'reservas.js', response)

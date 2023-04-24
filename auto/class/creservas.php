@@ -10,45 +10,62 @@
  *
  * @author root
  */
-require_once ('/var/www/html/tape/class/cerrors.php');
-require_once ('/var/www/html/tape/class/csqlprovider.php');
-require_once ('/var/www/html/tape/class/cdump.php');
+require_once '/var/www/html/tape/class/cerrors.php';
+require_once '/var/www/html/tape/class/csqlprovider.php';
+require_once '/var/www/html/tape/class/cdump.php';
 
-class Reserva {
+class Reserva
+{
 
 //put your code here
 
+    public $ReservaId = 'NULL',
+    $Destino = '',
+    $Solicitante = '',
+    $EmailSolicitante = '',
+    $AutorizadoPor = '',
+    $ChoferesIds = '',
+    $VehiculoId = 'NULL',
+    $FechaInicio = 'NULL',
+    $HoraSalida = 'NULL',
+    $FechaFin = 'NULL',
+    $HoraLlegada = 'NULL',
+    $Observacion = '',
+    $FileName = '',
+    $NumPasajeros = 'NULL',
+    $EstadoId = 'NULL',
+    $Distancia = 'NULL',
+    $PrecioCombustible = 'NULL',
+    $FechaCreacion = 'NULL',
+    $Mantenimiento = 'NULL',
+    $GastoTotal = 'NULL',
+    $UserId = 'NULL',
+    $FechaMod = '';
 
-    var $ReservaId = 'NULL',
-            $Destino = '',
-            $Solicitante = '',
-            $EmailSolicitante = '',
-            $AutorizadoPor = '',
-            $ChoferesIds = '',
-            $VehiculoId = 'NULL',
-            $FechaInicio = 'NULL',
-            $HoraSalida = 'NULL',
-            $FechaFin = 'NULL',
-            $HoraLlegada = 'NULL',
-            $Observacion = '',
-            $FileName = '',
-            $NumPasajeros = 'NULL',
-            $EstadoId = 'NULL',
-            $Distancia = 'NULL',
-            $PrecioCombustible = 'NULL',
-            $FechaCreacion = 'NULL',
-            $Mantenimiento = 'NULL',
-            $GastoTotal = 'NULL',
-            $UserId = 'NULL',
-            $FechaMod = '';
-
-    public function copy($object) {
+    public function copy($object)
+    {
         foreach (get_object_vars($object) as $key => $value) {
             $this->$key = $value;
         }
     }
+    public function copy2($object)
+    {
+        try {
+            $html = "";
 
-    function GetListReservas($fI, $fF, $reId) {
+            foreach ($object as $key => $value) {
+                $html .= $key . ': ' . $value . '<br>';
+                $this->$key = $value;
+            }
+            return $html;
+        } catch (\Throwable$th) {
+            $e = new Errors();
+            $e->SendErrorMessage($ex, "creservas.php - copy2", $object);
+        }
+
+    }
+    public function GetListReservas($fI, $fF, $reId)
+    {
         $reservas = array();
         $query = "call reservas_getListByFechas";
         try {
@@ -68,7 +85,8 @@ class Reserva {
         return null;
     }
 
-    function GetPendientes() {
+    public function GetPendientes()
+    {
         $reservas = array();
         $query = "call reservas_getPendientes();";
         try {
@@ -86,13 +104,14 @@ class Reserva {
         return null;
     }
 
-    function Search($dia, $mes, $anio, $typeve, $estado) {
+    public function Search($dia, $mes, $anio, $typeve, $estado)
+    {
         $reservas = array();
         $query = "call reservas_Search";
         try {
             $db = new sqlprovider();
             $db->getInstance();
-	    if($dia == "" || is_null($dia) || !isset($dia) || empty($dia)){ $dia='1900-01-01';}
+            if ($dia == "" || is_null($dia) || !isset($dia) || empty($dia)) {$dia = '1900-01-01';}
             $query = "call reservas_Search('" . $dia . "'," . $mes . "," . $anio . "," . $typeve . "," . $estado . ");";
 
             if ($db->setQuery($query)) {
@@ -107,7 +126,8 @@ class Reserva {
         return null;
     }
 
-    function ReporteVehiculo($veId, $mes, $anio, $estado) {
+    public function ReporteVehiculo($veId, $mes, $anio, $estado)
+    {
         $reservas = array();
         $query = "call reservas_Search";
         try {
@@ -127,7 +147,8 @@ class Reserva {
         return null;
     }
 
-    function ReporteVehiculoDisp($desde, $hasta, $veId) {
+    public function ReporteVehiculoDisp($desde, $hasta, $veId)
+    {
         $reservas = array();
         $query = "call reservas_Search";
         try {
@@ -135,7 +156,7 @@ class Reserva {
             $db->getInstance();
             $query = "call reservas_ReporteVehiculoDisp('" . $desde . "','" . $hasta . "'," . $veId . ");";
             /* $e = new Errors();
-              $e->SendErrorMessage(new Exception("testing"), "creservas.php - reservas_ReporteVehiculoDisp", $query); */
+            $e->SendErrorMessage(new Exception("testing"), "creservas.php - reservas_ReporteVehiculoDisp", $query); */
             if ($db->setQuery($query)) {
                 $reservas = $db->ListObject();
             }
@@ -148,7 +169,8 @@ class Reserva {
         return null;
     }
 
-    function GetForCalendar($mes, $anio, $typeve, $estado) {
+    public function GetForCalendar($mes, $anio, $typeve, $estado)
+    {
         $reservas = array();
         $query = "call reservas_getForCalendar";
         try {
@@ -168,7 +190,8 @@ class Reserva {
         return null;
     }
 
-    function GetByVehiculoId() {
+    public function GetByVehiculoId()
+    {
         $reservas = array();
         $query = "call reservas_getByVehiculoId";
         try {
@@ -188,7 +211,8 @@ class Reserva {
         return null;
     }
 
-    function GetById() {
+    public function GetById()
+    {
         $reservas = array();
         $query = "call reservas_getById";
         try {
@@ -208,7 +232,8 @@ class Reserva {
         return null;
     }
 
-    function GetByEstadoId() {
+    public function GetByEstadoId()
+    {
         $reservas = array();
         $query = "call reservas_getByEstadoId";
         try {
@@ -228,7 +253,8 @@ class Reserva {
         return null;
     }
 
-    function GrabarCosto($costo, $reId) {
+    public function GrabarCosto($costo, $reId)
+    {
         $query = "";
         try {
             $query = "call reservas_updateCosto(" . $costo . "," . $reId . ");";
@@ -251,7 +277,8 @@ class Reserva {
         return false;
     }
 
-    function UploadFile($name, $reId) {
+    public function UploadFile($name, $reId)
+    {
         $query = "";
         try {
             $query = "call reservas_updateFile('" . $name . "'," . $reId . ");";
@@ -274,7 +301,8 @@ class Reserva {
         return false;
     }
 
-    function Save() {
+    public function Save()
+    {
         $query = "";
         try {
             $query = "call reservas_update('" . $this->Destino . "','" . $this->Solicitante . "','" . $this->EmailSolicitante . "',
@@ -304,7 +332,8 @@ class Reserva {
         return false;
     }
 
-    function Insert() {
+    public function Insert()
+    {
         $query = "";
         try {
             $query = "call reservas_insert('" . $this->Destino . "','" . $this->Solicitante . "','" . $this->EmailSolicitante . "',
@@ -315,15 +344,18 @@ class Reserva {
             $db = new sqlprovider();
             $db->getInstance();
             $reserva = array();
+
             if ($db->setQuery($query)) {
                 $reserva = $db->ListArray();
             }
             $db->CloseMysql();
+
             if (isset($reserva) == 1) {
-                $this->DeleteChoferes($reserva[0][0]);
-                $this->UpdateChoferes($reserva[0][0], $this->ChoferesIds);
+                $this->DeleteChoferes($reserva[0]['Id']);
+                $this->UpdateChoferes($reserva[0]['Id'], $this->ChoferesIds);
                 return true;
             }
+
         } catch (Exception $ex) {
             $e = new Errors();
             $e->SendErrorMessage($ex, "creservas.php - Insert:" . $query, $query);
@@ -331,11 +363,12 @@ class Reserva {
         return false;
     }
 
-    function DeleteChoferes($reId) {
+    public function DeleteChoferes($reId)
+    {
 
         $query = "";
         try {
-            $query .="call reservas_delChoferes(" . $reId . ");";
+            $query .= "call reservas_delChoferes(" . $reId . ");";
             $db = new sqlprovider();
             $db->getInstance();
             $db->setQuery($query);
@@ -354,7 +387,8 @@ class Reserva {
         return false;
     }
 
-    function UpdateChoferes($reId, $choferesIds) {
+    public function UpdateChoferes($reId, $choferesIds)
+    {
 
         $query = "";
         try {
@@ -363,16 +397,15 @@ class Reserva {
                     $query = "call reservas_addChofer(" . $reId . "," . $ch . ");";
                     $db = new sqlprovider();
                     $db->getInstance();
-                    $reserva = array();
-                    if ($db->setQuery($query)) {
-                        $reserva = $db->ListArray();
+                    $db->setQuery($query);
+                    if ($db->execute() == "1") {
+                        $db->CloseMysql();
+                        return true;
+                    } else {
+                        $db->CloseMysql();
+                        return false;
                     }
-                    $db->CloseMysql();
 
-                    if (isset($reserva) != 1) {
-                        $e = new Errors();
-                        $e->SendErrorMessage(new Exception("Error updating ReservaChofer"), "creservas.php - Add Chofer" . $query, $query);
-                    }
                 }
             }
         } catch (Exception $ex) {
@@ -381,14 +414,17 @@ class Reserva {
         }
     }
 
-    function Delete() {
+    public function Delete()
+    {
 
         $query = "";
         try {
-            $query .="call reservas_delete(" . $this->ReservaId . ");";
+            $query .= "call reservas_delete(" . $this->ReservaId . ");";
             $db = new sqlprovider();
             $db->getInstance();
             $db->setQuery($query);
+            $e = new Errors();
+            $e->SendDataMessage("creservas", $query);
             if ($db->execute() == "1") {
                 $db->CloseMysql();
                 return true;
@@ -404,5 +440,3 @@ class Reserva {
     }
 
 }
-
-?>
